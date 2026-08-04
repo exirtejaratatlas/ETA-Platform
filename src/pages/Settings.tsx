@@ -24,7 +24,7 @@ export default function Settings() {
           </CardHeader>
           <CardBody>
             <div className="flex items-center gap-4">
-              <img src="/logo.svg" alt="Logo" className="h-14 w-14" />
+              <img src="/Logo.svg" alt="Exir Tejarat Atlas" className="h-14 w-auto" />
               <div>
                 <p className="text-sm font-semibold text-surface-900">Exir Tejarat Atlas</p>
                 <p className="text-xs text-surface-500">اکسیر تجارت اطلس</p>

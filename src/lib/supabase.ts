@@ -3,13 +3,19 @@ import { createClient } from "@supabase/supabase-js";
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: false,
-    autoRefreshToken: false,
-    detectSessionInUrl: false,
-  },
-});
+export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
+
+export const supabase = createClient(
+  supabaseUrl || "https://placeholder.supabase.co",
+  supabaseAnonKey || "placeholder-anon-key",
+  {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
+  }
+);
 
 export type Company = {
   id: string;
@@ -50,17 +56,55 @@ export type Deal = {
   created_at: string;
 };
 
+export type SupplierCategory =
+  | "Manufacturer"
+  | "Distributor"
+  | "Trading Company"
+  | "Service Provider"
+  | "Logistics Provider"
+  | "OEM"
+  | "EPC Contractor"
+  | "Consultant";
+
+export type SupplierLifecycleStatus =
+  | "Draft"
+  | "Under Review"
+  | "Approved"
+  | "Active"
+  | "Suspended"
+  | "Inactive"
+  | "Archived";
+
+export type SupplierClassification = "Strategic" | "Preferred" | "Approved" | "Conditional";
+
 export type Supplier = {
   id: string;
+  supplier_code: string;
   name: string;
   category: string;
   email: string | null;
   phone: string | null;
   website: string | null;
+  country: string;
   rating: number;
   status: "active" | "inactive" | "pending";
   payment_terms: string;
   created_at: string;
+  // Supplier Intelligence (MOD-1) — ETA-Blueprint ENT-SUPPLIER-001
+  lifecycle_status: SupplierLifecycleStatus;
+  classification: SupplierClassification;
+  certifications: string[];
+  compliance_status: "compliant" | "under_review" | "non_compliant";
+  risk_level: "low" | "medium" | "high";
+};
+
+export type SupplierRelationshipEvent = {
+  id: string;
+  supplier_id: string;
+  date: string;
+  type: "onboarded" | "order" | "review" | "certification" | "issue" | "note";
+  title: string;
+  description: string;
 };
 
 export type PurchaseOrder = {
@@ -116,6 +160,34 @@ export type AiModel = {
   status: "active" | "inactive" | "training";
   endpoint: string | null;
   api_key_ref: string | null;
+  created_at: string;
+};
+
+// Customer Inquiry / Opportunity — first MVP concept for capturing a customer request ahead of
+// a formal RFQ. Sits upstream of ETA-Blueprint's approved RFQ entity (04-DATA/Entities/RFQ) —
+// see docs/delivery/CONTENT-SOURCE-MAP.md. UI/mock-data only, no backend table yet.
+export type InquiryStatus =
+  | "new"
+  | "technical_review"
+  | "supplier_search"
+  | "quotation_preparation"
+  | "customer_offer_sent"
+  | "negotiation"
+  | "won"
+  | "lost";
+
+export type CustomerInquiry = {
+  id: string;
+  inquiry_number: string;
+  company_id: string | null;
+  customer_name: string;
+  industry: string;
+  request_date: string;
+  product_equipment: string;
+  technical_specification: string;
+  quantity: string;
+  required_delivery_date: string | null;
+  status: InquiryStatus;
   created_at: string;
 };
 

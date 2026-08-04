@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Sparkles, Plus, Cpu, Zap, Clock, CircleCheck as CheckCircle2, CircleAlert as AlertCircle, Activity } from "lucide-react";
-import { supabase, type AiModel, type AiTask } from "../lib/supabase";
+import type { AiModel, AiTask } from "../lib/supabase";
+import { getAiModels, getAiTasks } from "../lib/data";
 import { PageHeader } from "../components/ui/PageHeader";
 import { Card, CardHeader, CardBody, CardTitle } from "../components/ui/Card";
 import { Badge } from "../components/ui/Badge";
@@ -15,9 +16,9 @@ const modelStatusTones: Record<string, "success" | "neutral" | "warning"> = {
   training: "warning",
 };
 
-const taskStatusTones: Record<string, "success" | "brand" | "warning" | "error"> = {
+const taskStatusTones: Record<string, "success" | "copper" | "warning" | "error"> = {
   completed: "success",
-  running: "brand",
+  running: "copper",
   pending: "warning",
   failed: "error",
 };
@@ -35,12 +36,9 @@ export default function AiPlatform() {
 
   useEffect(() => {
     async function load() {
-      const [m, t] = await Promise.all([
-        supabase.from("ai_models").select("*").order("created_at", { ascending: false }),
-        supabase.from("ai_tasks").select("*").order("created_at", { ascending: false }),
-      ]);
-      setModels(m.data ?? []);
-      setTasks(t.data ?? []);
+      const [m, t] = await Promise.all([getAiModels(), getAiTasks(50)]);
+      setModels(m);
+      setTasks(t);
       setLoading(false);
     }
     load();
@@ -66,10 +64,10 @@ export default function AiPlatform() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
-        <StatCard label="Active Models" value={activeModels} icon={<Cpu size={20} />} tone="brand" />
+        <StatCard label="Active Models" value={activeModels} icon={<Cpu size={20} />} tone="info" />
         <StatCard label="Completed Tasks" value={completedTasks} icon={<CheckCircle2 size={20} />} tone="success" />
-        <StatCard label="Running" value={runningTasks} icon={<Activity size={20} />} tone="teal" />
-        <StatCard label="Pending" value={pendingTasks} icon={<Clock size={20} />} tone="gold" />
+        <StatCard label="Running" value={runningTasks} icon={<Activity size={20} />} tone="copper" />
+        <StatCard label="Pending" value={pendingTasks} icon={<Clock size={20} />} tone="warning" />
       </div>
 
       {/* AI Models */}
@@ -117,7 +115,7 @@ export default function AiPlatform() {
               >
                 <div className={`flex h-9 w-9 items-center justify-center rounded-lg shrink-0 ${
                   task.status === "completed" ? "bg-green-50 text-green-600" :
-                  task.status === "running" ? "bg-brand-50 text-brand-600" :
+                  task.status === "running" ? "bg-copper-50 text-copper-600" :
                   task.status === "pending" ? "bg-amber-50 text-amber-600" :
                   "bg-red-50 text-red-600"
                 }`}>

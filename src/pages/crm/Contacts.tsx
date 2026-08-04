@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Users, Plus, Search, Mail, Phone } from "lucide-react";
-import { supabase, type Contact } from "../../lib/supabase";
+import type { Contact } from "../../lib/supabase";
+import { getContacts, getCompanies } from "../../lib/data";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { Card } from "../../components/ui/Card";
 import { Badge } from "../../components/ui/Badge";
@@ -17,11 +18,10 @@ export default function Contacts() {
 
   useEffect(() => {
     async function load() {
-      const { data: contactData } = await supabase.from("contacts").select("*").order("created_at", { ascending: false });
-      const { data: companies } = await supabase.from("companies").select("id, name");
+      const [contactData, companies] = await Promise.all([getContacts(), getCompanies()]);
 
-      const companyMap = new Map((companies ?? []).map((c) => [c.id, c.name] as [string, string]));
-      const enriched = (contactData ?? []).map((c) => ({
+      const companyMap = new Map(companies.map((c) => [c.id, c.name] as [string, string]));
+      const enriched = contactData.map((c) => ({
         ...c,
         company_name: c.company_id ? companyMap.get(c.company_id) : undefined,
       }));
@@ -69,7 +69,7 @@ export default function Contacts() {
               <Avatar
                 initials={getInitials(contact.first_name, contact.last_name)}
                 size="lg"
-                tone={i % 3 === 0 ? "brand" : i % 3 === 1 ? "gold" : "teal"}
+                tone={i % 3 === 0 ? "copper" : i % 3 === 1 ? "info" : "neutral"}
               />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { TrendingUp, Plus } from "lucide-react";
-import { supabase, type Deal } from "../../lib/supabase";
+import type { Deal } from "../../lib/supabase";
+import { getDeals, getCompanies, getContacts } from "../../lib/data";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { Card } from "../../components/ui/Card";
 import { Badge } from "../../components/ui/Badge";
@@ -10,11 +11,11 @@ import { Spinner } from "../../components/ui/Spinner";
 import { formatCurrency, formatDate } from "../../lib/format";
 
 const stages = ["lead", "qualified", "proposal", "negotiation", "won", "lost"] as const;
-const stageTones: Record<string, "neutral" | "brand" | "teal" | "gold" | "success" | "error"> = {
+const stageTones: Record<string, "neutral" | "info" | "warning" | "copper" | "success" | "error"> = {
   lead: "neutral",
-  qualified: "brand",
-  proposal: "teal",
-  negotiation: "gold",
+  qualified: "info",
+  proposal: "warning",
+  negotiation: "copper",
   won: "success",
   lost: "error",
 };
@@ -25,14 +26,12 @@ export default function Deals() {
 
   useEffect(() => {
     async function load() {
-      const { data: dealData } = await supabase.from("deals").select("*").order("created_at", { ascending: false });
-      const { data: companies } = await supabase.from("companies").select("id, name");
-      const { data: contacts } = await supabase.from("contacts").select("id, first_name, last_name");
+      const [dealData, companies, contacts] = await Promise.all([getDeals(), getCompanies(), getContacts()]);
 
-      const companyMap = new Map((companies ?? []).map((c) => [c.id, c.name] as [string, string]));
-      const contactMap = new Map((contacts ?? []).map((c) => [c.id, `${c.first_name} ${c.last_name}`] as [string, string]));
+      const companyMap = new Map(companies.map((c) => [c.id, c.name] as [string, string]));
+      const contactMap = new Map(contacts.map((c) => [c.id, `${c.first_name} ${c.last_name}`] as [string, string]));
 
-      const enriched = (dealData ?? []).map((d) => ({
+      const enriched = dealData.map((d) => ({
         ...d,
         company_name: d.company_id ? companyMap.get(d.company_id) : undefined,
         contact_name: d.contact_id ? contactMap.get(d.contact_id) : undefined,

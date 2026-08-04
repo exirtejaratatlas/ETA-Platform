@@ -10,46 +10,20 @@ export default {
         mono: ["JetBrains Mono", "ui-monospace", "monospace"],
       },
       colors: {
-        // Brand colors extracted from Exir Tejarat Atlas logo
-        // Deep navy + gold accent palette
-        brand: {
-          50: "#f0f7ff",
-          100: "#e0effe",
-          200: "#bae0fd",
-          300: "#7cc8fc",
-          400: "#36abf8",
-          500: "#0c8ee6",
-          600: "#0070c5",
-          700: "#0159a0",
-          800: "#064c84",
-          900: "#0b406d",
-          950: "#072849",
-        },
-        gold: {
-          50: "#fdfbe9",
-          100: "#fbf6c7",
-          200: "#f7ec8b",
-          300: "#f3dd4f",
-          400: "#f0c62a",
-          500: "#e9a710",
-          600: "#cd7d0b",
-          700: "#a85a0c",
-          800: "#8b4511",
-          900: "#743912",
-          950: "#431d06",
-        },
-        teal: {
-          50: "#f0fdfa",
-          100: "#ccfbf1",
-          200: "#99f6e4",
-          300: "#5eead4",
-          400: "#2dd4bf",
-          500: "#14b8a6",
-          600: "#0d9488",
-          700: "#0f766e",
-          800: "#115e59",
-          900: "#134e4a",
-          950: "#042f2e",
+        // ETA Copper — primary accent color, ETA-Blueprint 20-BRANDING/04-Visual-Identity/Colors.md (ETA-VISUAL-001)
+        // Note: surface-900 (#0f172a) already matches "ETA Navy" from the same spec — reused as-is, not duplicated here.
+        copper: {
+          50: "#fdf6ef",
+          100: "#faebd9",
+          200: "#f3d3ae",
+          300: "#e9b378",
+          400: "#dc9855",
+          500: "#c57b39",
+          600: "#a8632c",
+          700: "#874f25",
+          800: "#6d4122",
+          900: "#5a371f",
+          950: "#301b0f",
         },
         // Semantic tokens
         success: {
@@ -66,6 +40,11 @@ export default {
           DEFAULT: "#dc2626",
           light: "#ef4444",
           dark: "#b91c1c",
+        },
+        info: {
+          DEFAULT: "#2563eb",
+          light: "#3b82f6",
+          dark: "#1d4ed8",
         },
         // Neutral surfaces
         surface: {
@@ -100,8 +79,7 @@ export default {
         soft: "0 1px 2px 0 rgb(0 0 0 / 0.04), 0 1px 3px 0 rgb(0 0 0 / 0.06)",
         card: "0 2px 8px -2px rgb(0 0 0 / 0.06), 0 4px 16px -4px rgb(0 0 0 / 0.08)",
         elevated: "0 4px 16px -2px rgb(0 0 0 / 0.08), 0 8px 32px -4px rgb(0 0 0 / 0.12)",
-        glow: "0 0 0 1px rgb(12 142 230 / 0.1), 0 4px 24px -4px rgb(12 142 230 / 0.25)",
-        "glow-gold": "0 0 0 1px rgb(233 167 16 / 0.1), 0 4px 24px -4px rgb(233 167 16 / 0.25)",
+        "glow-copper": "0 0 0 1px rgb(197 123 57 / 0.1), 0 4px 24px -4px rgb(197 123 57 / 0.25)",
       },
       animation: {
         "fade-in": "fadeIn 0.3s ease-out",

@@ -9,13 +9,15 @@ import {
   Globe,
   Sparkles,
   Settings,
+  ArrowLeft,
+  Inbox,
 } from "lucide-react";
 
 const navSections = [
   {
     label: "Overview",
     items: [
-      { to: "/", icon: LayoutDashboard, label: "Dashboard" },
+      { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
     ],
   },
   {
@@ -23,6 +25,7 @@ const navSections = [
     items: [
       { to: "/crm/companies", icon: Building2, label: "Companies" },
       { to: "/crm/contacts", icon: Users, label: "Contacts" },
+      { to: "/crm/inquiries", icon: Inbox, label: "Inquiries" },
       { to: "/crm/deals", icon: TrendingUp, label: "Deals" },
     ],
   },
@@ -30,7 +33,7 @@ const navSections = [
     label: "Procurement",
     items: [
       { to: "/procurement/orders", icon: ShoppingBag, label: "Purchase Orders" },
-      { to: "/procurement/suppliers", icon: Package, label: "Suppliers" },
+      { to: "/suppliers", icon: Package, label: "Suppliers" },
     ],
   },
   {
@@ -52,7 +55,7 @@ export function Sidebar() {
     <aside className="hidden lg:flex w-60 flex-col border-r border-surface-200 bg-white">
       {/* Logo */}
       <div className="flex h-16 items-center gap-2.5 px-5 border-b border-surface-200">
-        <img src="/logo.svg" alt="ETA" className="h-8 w-8" />
+        <img src="/Logo.svg" alt="Exir Tejarat Atlas" className="h-8 w-auto" />
         <div className="flex flex-col leading-tight">
           <span className="text-sm font-semibold text-surface-900">Exir Tejarat Atlas</span>
           <span className="text-[10px] text-surface-400 font-medium tracking-wide uppercase">Enterprise Platform</span>
@@ -75,7 +78,7 @@ export function Sidebar() {
                   className={({ isActive }) =>
                     `flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150 ${
                       isActive
-                        ? "bg-brand-50 text-brand-700"
+                        ? "bg-copper-50 text-copper-700"
                         : "text-surface-600 hover:bg-surface-50 hover:text-surface-900"
                     }`
                   }
@@ -90,12 +93,19 @@ export function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="border-t border-surface-200 p-3">
+      <div className="border-t border-surface-200 p-3 space-y-0.5">
+        <NavLink
+          to="/"
+          className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-surface-500 hover:bg-surface-50 hover:text-surface-900 transition-colors"
+        >
+          <ArrowLeft size={16} />
+          Back to Website
+        </NavLink>
         <NavLink
           to="/settings"
           className={({ isActive }) =>
             `flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-              isActive ? "bg-brand-50 text-brand-700" : "text-surface-600 hover:bg-surface-50"
+              isActive ? "bg-copper-50 text-copper-700" : "text-surface-600 hover:bg-surface-50"
             }`
           }
         >

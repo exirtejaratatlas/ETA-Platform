@@ -10,15 +10,17 @@ import {
   Package,
   Globe,
   Sparkles,
+  Inbox,
 } from "lucide-react";
 
 const quickLinks = [
-  { to: "/", icon: LayoutDashboard, label: "Dashboard" },
+  { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
   { to: "/crm/companies", icon: Building2, label: "Companies" },
   { to: "/crm/contacts", icon: Users, label: "Contacts" },
+  { to: "/crm/inquiries", icon: Inbox, label: "Inquiries" },
   { to: "/crm/deals", icon: TrendingUp, label: "Deals" },
   { to: "/procurement/orders", icon: ShoppingBag, label: "Purchase Orders" },
-  { to: "/procurement/suppliers", icon: Package, label: "Suppliers" },
+  { to: "/suppliers", icon: Package, label: "Suppliers" },
   { to: "/supplier-portal", icon: Globe, label: "Supplier Portal" },
   { to: "/ai-platform", icon: Sparkles, label: "AI Platform" },
 ];
@@ -68,9 +70,9 @@ export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
         <div className="flex items-center gap-2 ml-auto">
           <button className="relative rounded-lg p-2 text-surface-600 hover:bg-surface-100 transition-colors">
             <Bell size={18} />
-            <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-gold-500" />
+            <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-copper-500" />
           </button>
-          <div className="h-8 w-8 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white text-xs font-medium">
+          <div className="h-8 w-8 rounded-full bg-gradient-to-br from-copper-500 to-copper-700 flex items-center justify-center text-white text-xs font-medium">
             ETA
           </div>
         </div>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Building2, Plus, Search, Globe, Mail, Phone } from "lucide-react";
-import { supabase, type Company } from "../../lib/supabase";
+import type { Company } from "../../lib/supabase";
+import { getCompanies } from "../../lib/data";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { Card } from "../../components/ui/Card";
 import { Badge } from "../../components/ui/Badge";
@@ -16,8 +17,8 @@ export default function Companies() {
 
   useEffect(() => {
     async function load() {
-      const { data } = await supabase.from("companies").select("*").order("name");
-      setCompanies(data ?? []);
+      const data = await getCompanies();
+      setCompanies([...data].sort((a, b) => a.name.localeCompare(b.name)));
       setLoading(false);
     }
     load();
@@ -55,11 +56,11 @@ export default function Companies() {
           <Card key={company.id} hover className="animate-fade-in-up" style={{ animationDelay: `${i * 50}ms` }}>
             <div className="p-5">
               <div className="flex items-start justify-between mb-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white font-semibold">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-copper-500 to-copper-700 text-white font-semibold">
                   {company.name.slice(0, 2).toUpperCase()}
                 </div>
                 <Badge
-                  tone={company.status === "active" ? "success" : company.status === "prospect" ? "gold" : "neutral"}
+                  tone={company.status === "active" ? "success" : company.status === "prospect" ? "info" : "neutral"}
                   dot
                 >
                   {company.status}

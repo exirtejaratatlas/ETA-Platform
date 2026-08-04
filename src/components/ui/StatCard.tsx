@@ -5,18 +5,18 @@ interface StatCardProps {
   value: string | number;
   icon: ReactNode;
   trend?: { value: string; positive: boolean };
-  tone?: "brand" | "gold" | "teal" | "neutral" | "success";
+  tone?: "copper" | "info" | "neutral" | "success" | "warning";
 }
 
 const toneClasses = {
-  brand: "bg-brand-50 text-brand-600",
-  gold: "bg-gold-50 text-gold-600",
-  teal: "bg-teal-50 text-teal-600",
+  copper: "bg-copper-50 text-copper-600",
+  info: "bg-blue-50 text-blue-600",
   neutral: "bg-surface-100 text-surface-600",
   success: "bg-green-50 text-green-600",
+  warning: "bg-amber-50 text-amber-600",
 };
 
-export function StatCard({ label, value, icon, trend, tone = "brand" }: StatCardProps) {
+export function StatCard({ label, value, icon, trend, tone = "copper" }: StatCardProps) {
   return (
     <div className="rounded-2xl border border-surface-200 bg-white p-5 shadow-soft transition-all duration-200 hover:shadow-card hover:border-surface-300 animate-fade-in-up">
       <div className="flex items-center justify-between mb-3">

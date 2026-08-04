@@ -17,7 +17,7 @@ export function Input({ label, icon, error, className = "", ...props }: InputPro
           </div>
         )}
         <input
-          className={`w-full h-9 rounded-lg border border-surface-300 bg-white px-3 ${icon ? "pl-9" : ""} text-sm text-surface-900 placeholder:text-surface-400 transition-all duration-150 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none ${error ? "border-error" : ""} ${className}`}
+          className={`w-full h-9 rounded-lg border border-surface-300 bg-white px-3 ${icon ? "pl-9" : ""} text-sm text-surface-900 placeholder:text-surface-400 transition-all duration-150 focus:border-copper-500 focus:ring-2 focus:ring-copper-500/20 focus:outline-none ${error ? "border-error" : ""} ${className}`}
           {...props}
         />
       </div>

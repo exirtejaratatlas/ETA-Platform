@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Globe, FileCheck, Clock, TrendingUp, Package } from "lucide-react";
-import { supabase, type SupplierProfile, type SupplierQuote } from "../lib/supabase";
+import type { SupplierProfile, SupplierQuote } from "../lib/supabase";
+import { getSupplierProfiles, getSuppliers, getSupplierQuotes, getPurchaseOrders } from "../lib/data";
 import { PageHeader } from "../components/ui/PageHeader";
 import { Card, CardHeader, CardBody, CardTitle } from "../components/ui/Card";
 import { Badge } from "../components/ui/Badge";
@@ -9,16 +10,16 @@ import { StatCard } from "../components/ui/StatCard";
 import { Spinner } from "../components/ui/Spinner";
 import { formatCurrency, formatRelativeTime } from "../lib/format";
 
-const portalStatusTones: Record<string, "neutral" | "brand" | "gold" | "success" | "error"> = {
+const portalStatusTones: Record<string, "neutral" | "info" | "warning" | "success" | "error"> = {
   pending: "neutral",
-  onboarding: "gold",
+  onboarding: "warning",
   active: "success",
   suspended: "error",
 };
 
-const quoteStatusTones: Record<string, "neutral" | "brand" | "gold" | "success" | "error"> = {
-  submitted: "gold",
-  under_review: "brand",
+const quoteStatusTones: Record<string, "neutral" | "info" | "warning" | "success" | "error"> = {
+  submitted: "warning",
+  under_review: "info",
   accepted: "success",
   rejected: "error",
 };
@@ -30,19 +31,21 @@ export default function SupplierPortal() {
 
   useEffect(() => {
     async function load() {
-      const { data: profileData } = await supabase.from("supplier_profiles").select("*").order("created_at", { ascending: false });
-      const { data: suppliers } = await supabase.from("suppliers").select("id, name, category");
-      const { data: quoteData } = await supabase.from("supplier_quotes").select("*").order("created_at", { ascending: false });
-      const { data: pos } = await supabase.from("purchase_orders").select("id, po_number");
+      const [profileData, suppliers, quoteData, pos] = await Promise.all([
+        getSupplierProfiles(),
+        getSuppliers(),
+        getSupplierQuotes(),
+        getPurchaseOrders(),
+      ]);
 
-      const supplierMap = new Map((suppliers ?? []).map((s) => [s.id, s] as [string, { name: string; category: string }]));
-      const poMap = new Map((pos ?? []).map((p) => [p.id, p.po_number]));
+      const supplierMap = new Map(suppliers.map((s) => [s.id, s] as [string, { name: string; category: string }]));
+      const poMap = new Map(pos.map((p) => [p.id, p.po_number]));
 
-      const enrichedProfiles = (profileData ?? []).map((p) => {
+      const enrichedProfiles = profileData.map((p) => {
         const supplier = p.supplier_id ? supplierMap.get(p.supplier_id) : undefined;
         return { ...p, supplier_name: supplier?.name, supplier_category: supplier?.category };
       });
-      const enrichedQuotes = (quoteData ?? []).map((q) => {
+      const enrichedQuotes = quoteData.map((q) => {
         const supplier = q.supplier_id ? supplierMap.get(q.supplier_id) : undefined;
         return { ...q, supplier_name: supplier?.name, po_number: q.po_id ? poMap.get(q.po_id) : undefined };
       });
@@ -74,9 +77,9 @@ export default function SupplierPortal() {
       {/* Stats */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
         <StatCard label="Active Suppliers" value={activeCount} icon={<Globe size={20} />} tone="success" />
-        <StatCard label="Onboarding" value={onboardingCount} icon={<Clock size={20} />} tone="gold" />
-        <StatCard label="Pending Quotes" value={pendingQuotes} icon={<Package size={20} />} tone="brand" />
-        <StatCard label="Total Quote Value" value={formatCurrency(totalQuoteValue)} icon={<TrendingUp size={20} />} tone="teal" />
+        <StatCard label="Onboarding" value={onboardingCount} icon={<Clock size={20} />} tone="warning" />
+        <StatCard label="Pending Quotes" value={pendingQuotes} icon={<Package size={20} />} tone="copper" />
+        <StatCard label="Total Quote Value" value={formatCurrency(totalQuoteValue)} icon={<TrendingUp size={20} />} tone="info" />
       </div>
 
       {/* Onboarding Pipeline */}
@@ -92,7 +95,7 @@ export default function SupplierPortal() {
                 className="flex items-center gap-4 py-3 border-b border-surface-100 last:border-0 animate-fade-in"
                 style={{ animationDelay: `${i * 40}ms` }}
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white text-xs font-semibold shrink-0">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-copper-500 to-copper-700 text-white text-xs font-semibold shrink-0">
                   {(profile.supplier_name ?? "S").slice(0, 2).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -106,7 +109,7 @@ export default function SupplierPortal() {
                 </div>
                 <div className="hidden sm:block w-32">
                   <p className="text-xs text-surface-400 mb-1">Onboarding Step {profile.onboarding_step}/5</p>
-                  <Progress value={profile.onboarding_step} max={5} tone={profile.portal_status === "active" ? "success" : "gold"} size="sm" />
+                  <Progress value={profile.onboarding_step} max={5} tone={profile.portal_status === "active" ? "success" : "warning"} size="sm" />
                 </div>
                 <div className="hidden md:flex items-center gap-2 text-xs text-surface-500">
                   {profile.documents_submitted ? (

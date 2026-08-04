@@ -1,7 +1,7 @@
 interface AvatarProps {
   initials: string;
   size?: "sm" | "md" | "lg";
-  tone?: "brand" | "gold" | "teal" | "neutral";
+  tone?: "copper" | "info" | "neutral";
 }
 
 const sizeClasses = {
@@ -11,13 +11,12 @@ const sizeClasses = {
 };
 
 const toneClasses = {
-  brand: "bg-brand-50 text-brand-700",
-  gold: "bg-gold-50 text-gold-700",
-  teal: "bg-teal-50 text-teal-700",
+  copper: "bg-copper-50 text-copper-700",
+  info: "bg-blue-50 text-blue-700",
   neutral: "bg-surface-100 text-surface-600",
 };
 
-export function Avatar({ initials, size = "md", tone = "brand" }: AvatarProps) {
+export function Avatar({ initials, size = "md", tone = "copper" }: AvatarProps) {
   return (
     <span
       className={`inline-flex items-center justify-center rounded-full font-medium ${sizeClasses[size]} ${toneClasses[tone]}`}

@@ -1,0 +1,373 @@
+import type {
+  AiModel,
+  AiTask,
+  Company,
+  Contact,
+  CustomerInquiry,
+  Deal,
+  PoItem,
+  PurchaseOrder,
+  Supplier,
+  SupplierProfile,
+  SupplierQuote,
+  SupplierRelationshipEvent,
+} from "./supabase";
+
+// Mock data — used when Supabase is not configured (no ERP/DB integration yet).
+// Shapes follow ETA-Blueprint ENT-SUPPLIER-001 (Supplier Entity).
+//
+// DEMO DATA DISCLAIMER: all company, supplier, and contact names below are fictional.
+// They do not represent, and are not modeled on, any real organization or person.
+// Any resemblance to an actual company is coincidental. See AppLayout's demo banner
+// for the user-facing disclaimer (ETA-AUDIT-001, finding 5.1).
+
+export const mockSuppliers: Supplier[] = [
+  {
+    id: "sup-000125",
+    supplier_code: "SUP-000125",
+    name: "Damavand Steel Works",
+    category: "Manufacturer",
+    email: "sales@damavandsteel.com",
+    phone: "+98 31 5555 0125",
+    website: "damavandsteel.com",
+    country: "Iran",
+    rating: 4,
+    status: "active",
+    payment_terms: "Net 30",
+    created_at: "2025-11-02T09:00:00Z",
+    lifecycle_status: "Active",
+    classification: "Strategic",
+    certifications: ["ISO 9001", "ISO 14001"],
+    compliance_status: "compliant",
+    risk_level: "low",
+  },
+  {
+    id: "sup-000148",
+    supplier_code: "SUP-000148",
+    name: "Zagros Steel Trading",
+    category: "Trading Company",
+    email: "export@zagrossteeltrading.com",
+    phone: "+98 31 5232 1000",
+    website: "zagrossteeltrading.com",
+    country: "Iran",
+    rating: 5,
+    status: "active",
+    payment_terms: "Net 45",
+    created_at: "2025-09-18T09:00:00Z",
+    lifecycle_status: "Active",
+    classification: "Strategic",
+    certifications: ["ISO 9001", "ISO 45001"],
+    compliance_status: "compliant",
+    risk_level: "low",
+  },
+  {
+    id: "sup-000162",
+    supplier_code: "SUP-000162",
+    name: "Simorgh Products Co.",
+    category: "Distributor",
+    email: "info@simorghproducts.com",
+    phone: "+98 21 8877 4400",
+    website: "simorghproducts.com",
+    country: "Iran",
+    rating: 3,
+    status: "active",
+    payment_terms: "Net 30",
+    created_at: "2025-12-01T09:00:00Z",
+    lifecycle_status: "Approved",
+    classification: "Preferred",
+    certifications: ["ISO 9001"],
+    compliance_status: "compliant",
+    risk_level: "medium",
+  },
+  {
+    id: "sup-000174",
+    supplier_code: "SUP-000174",
+    name: "Alborz Hot Rolling Mills",
+    category: "Manufacturer",
+    email: "sales@alborzrolling.com",
+    phone: "+98 23 3345 6789",
+    website: "alborzrolling.com",
+    country: "Iran",
+    rating: 4,
+    status: "active",
+    payment_terms: "Net 60",
+    created_at: "2025-10-05T09:00:00Z",
+    lifecycle_status: "Active",
+    classification: "Preferred",
+    certifications: ["ISO 9001", "ISO 14001", "OHSAS 18001"],
+    compliance_status: "compliant",
+    risk_level: "low",
+  },
+  {
+    id: "sup-000189",
+    supplier_code: "SUP-000189",
+    name: "Cyrus Steel Partners",
+    category: "OEM",
+    email: "b2b@cyrussteel.com",
+    phone: "+98 31 3399 2211",
+    website: "cyrussteel.com",
+    country: "Iran",
+    rating: 3,
+    status: "pending",
+    payment_terms: "Net 30",
+    created_at: "2026-01-14T09:00:00Z",
+    lifecycle_status: "Under Review",
+    classification: "Conditional",
+    certifications: [],
+    compliance_status: "under_review",
+    risk_level: "medium",
+  },
+  {
+    id: "sup-000203",
+    supplier_code: "SUP-000203",
+    name: "Elburz Logistics & Freight",
+    category: "Logistics Provider",
+    email: "ops@elburzlogistics.com",
+    phone: "+98 21 4433 8800",
+    website: "elburzlogistics.com",
+    country: "UAE",
+    rating: 4,
+    status: "active",
+    payment_terms: "Net 15",
+    created_at: "2025-08-22T09:00:00Z",
+    lifecycle_status: "Active",
+    classification: "Approved",
+    certifications: ["ISO 28000"],
+    compliance_status: "compliant",
+    risk_level: "low",
+  },
+  {
+    id: "sup-000217",
+    supplier_code: "SUP-000217",
+    name: "Meridian EPC Group",
+    category: "EPC Contractor",
+    email: "contracts@meridianepc.com",
+    phone: "+98 21 8899 0011",
+    website: "meridianepc.com",
+    country: "Iran",
+    rating: 2,
+    status: "inactive",
+    payment_terms: "Net 90",
+    created_at: "2025-06-10T09:00:00Z",
+    lifecycle_status: "Suspended",
+    classification: "Conditional",
+    certifications: ["ISO 9001"],
+    compliance_status: "non_compliant",
+    risk_level: "high",
+  },
+  {
+    id: "sup-000231",
+    supplier_code: "SUP-000231",
+    name: "Compass Consulting Group",
+    category: "Consultant",
+    email: "hello@compassconsulting.com",
+    phone: "+98 23 3312 7700",
+    website: "compassconsulting.com",
+    country: "Iran",
+    rating: 5,
+    status: "active",
+    payment_terms: "Net 30",
+    created_at: "2025-12-20T09:00:00Z",
+    lifecycle_status: "Active",
+    classification: "Preferred",
+    certifications: ["ISO 9001"],
+    compliance_status: "compliant",
+    risk_level: "low",
+  },
+];
+
+export const mockSupplierRelationshipEvents: Record<string, SupplierRelationshipEvent[]> = {
+  "sup-000125": [
+    {
+      id: "evt-1",
+      supplier_id: "sup-000125",
+      date: "2025-11-02T09:00:00Z",
+      type: "onboarded",
+      title: "Supplier onboarded",
+      description: "Master data record created and approved by Procurement.",
+    },
+    {
+      id: "evt-2",
+      supplier_id: "sup-000125",
+      date: "2026-01-15T09:00:00Z",
+      type: "certification",
+      title: "ISO 14001 certification verified",
+      description: "Compliance team confirmed current environmental management certification.",
+    },
+    {
+      id: "evt-3",
+      supplier_id: "sup-000125",
+      date: "2026-03-10T09:00:00Z",
+      type: "order",
+      title: "PO-2026-0143 fulfilled on time",
+      description: "Hot-rolled coil order delivered 2 days ahead of schedule.",
+    },
+    {
+      id: "evt-4",
+      supplier_id: "sup-000125",
+      date: "2026-06-01T09:00:00Z",
+      type: "review",
+      title: "Quarterly performance review",
+      description: "Rated 4/5 — strong on-time delivery, minor documentation delays.",
+    },
+  ],
+  "sup-000189": [
+    {
+      id: "evt-5",
+      supplier_id: "sup-000189",
+      date: "2026-01-14T09:00:00Z",
+      type: "onboarded",
+      title: "Supplier submitted for review",
+      description: "Awaiting compliance and certification documents.",
+    },
+    {
+      id: "evt-6",
+      supplier_id: "sup-000189",
+      date: "2026-02-20T09:00:00Z",
+      type: "issue",
+      title: "Missing compliance documentation",
+      description: "Tax registration certificate requested, not yet received.",
+    },
+  ],
+  "sup-000217": [
+    {
+      id: "evt-7",
+      supplier_id: "sup-000217",
+      date: "2025-06-10T09:00:00Z",
+      type: "onboarded",
+      title: "Supplier onboarded",
+      description: "Approved for EPC contract work under Sprint 1 pilot.",
+    },
+    {
+      id: "evt-8",
+      supplier_id: "sup-000217",
+      date: "2025-12-05T09:00:00Z",
+      type: "issue",
+      title: "Delivery delay on PO-2025-0987",
+      description: "Project milestone missed by 3 weeks, root cause under investigation.",
+    },
+    {
+      id: "evt-9",
+      supplier_id: "sup-000217",
+      date: "2026-02-01T09:00:00Z",
+      type: "review",
+      title: "Supplier suspended",
+      description: "Suspended pending resolution of compliance non-conformance.",
+    },
+  ],
+};
+
+export const mockCompanies: Company[] = [
+  {
+    id: "co-1",
+    name: "Simorgh Holding",
+    industry: "Steel Trading",
+    website: "simorghholding.com",
+    email: "info@simorghholding.com",
+    phone: "+98 21 8877 4400",
+    status: "active",
+    employees: 320,
+    revenue: 42_000_000,
+    created_at: "2025-09-01T09:00:00Z",
+    updated_at: "2026-06-01T09:00:00Z",
+  },
+  {
+    id: "co-2",
+    name: "Cyrus Industrial Group",
+    industry: "Manufacturing",
+    website: "cyrusgroup.com",
+    email: "contact@cyrusgroup.com",
+    phone: "+98 31 3399 2211",
+    status: "prospect",
+    employees: 180,
+    revenue: 15_500_000,
+    created_at: "2025-11-20T09:00:00Z",
+    updated_at: "2026-05-15T09:00:00Z",
+  },
+  {
+    id: "co-3",
+    name: "Alborz Rolling Partners",
+    industry: "Metals",
+    website: "alborzrolling.com",
+    email: "sales@alborzrolling.com",
+    phone: "+98 23 3345 6789",
+    status: "active",
+    employees: 540,
+    revenue: 68_000_000,
+    created_at: "2025-07-11T09:00:00Z",
+    updated_at: "2026-06-10T09:00:00Z",
+  },
+];
+
+export const mockDeals: Deal[] = [
+  { id: "d-1", company_id: "co-1", contact_id: null, title: "Q3 Coil Supply Agreement", value: 1_250_000, currency: "USD", stage: "negotiation", probability: 70, expected_close: "2026-09-01", created_at: "2026-06-01T09:00:00Z" },
+  { id: "d-2", company_id: "co-2", contact_id: null, title: "Structural Steel Framework Deal", value: 480_000, currency: "USD", stage: "proposal", probability: 45, expected_close: "2026-08-15", created_at: "2026-05-20T09:00:00Z" },
+  { id: "d-3", company_id: "co-3", contact_id: null, title: "Annual Rebar Contract Renewal", value: 2_100_000, currency: "USD", stage: "won", probability: 100, expected_close: "2026-06-01", created_at: "2026-04-01T09:00:00Z" },
+  { id: "d-4", company_id: "co-1", contact_id: null, title: "Export Logistics Partnership", value: 340_000, currency: "USD", stage: "qualified", probability: 30, expected_close: "2026-10-01", created_at: "2026-06-15T09:00:00Z" },
+  { id: "d-5", company_id: "co-2", contact_id: null, title: "New Vendor Onboarding Pilot", value: 95_000, currency: "USD", stage: "lead", probability: 15, expected_close: "2026-11-01", created_at: "2026-06-20T09:00:00Z" },
+];
+
+export const mockPurchaseOrders: PurchaseOrder[] = [
+  { id: "po-1", po_number: "PO-2026-0143", supplier_id: "sup-000125", status: "received", total: 184_500, currency: "USD", order_date: "2026-03-01", expected_delivery: "2026-03-10", created_at: "2026-03-01T09:00:00Z" },
+  { id: "po-2", po_number: "PO-2026-0158", supplier_id: "sup-000148", status: "shipped", total: 320_000, currency: "USD", order_date: "2026-05-10", expected_delivery: "2026-06-05", created_at: "2026-05-10T09:00:00Z" },
+  { id: "po-3", po_number: "PO-2026-0161", supplier_id: "sup-000174", status: "approved", total: 96_200, currency: "USD", order_date: "2026-06-01", expected_delivery: "2026-06-25", created_at: "2026-06-01T09:00:00Z" },
+  { id: "po-4", po_number: "PO-2026-0165", supplier_id: "sup-000203", status: "submitted", total: 41_000, currency: "USD", order_date: "2026-06-18", expected_delivery: "2026-07-02", created_at: "2026-06-18T09:00:00Z" },
+  { id: "po-5", po_number: "PO-2026-0170", supplier_id: "sup-000217", status: "draft", total: 15_800, currency: "USD", order_date: "2026-07-01", expected_delivery: null, created_at: "2026-07-01T09:00:00Z" },
+];
+
+export const mockAiTasks: AiTask[] = [
+  { id: "ai-1", model_id: null, task_type: "supplier_scoring", status: "completed", input_summary: "Score SUP-000125 on delivery reliability", output_summary: "Score: 4.2/5", created_at: "2026-07-01T09:00:00Z", completed_at: "2026-07-01T09:05:00Z" },
+  { id: "ai-2", model_id: null, task_type: "price_analysis", status: "running", input_summary: "Compare rebar pricing across active suppliers", output_summary: null, created_at: "2026-07-03T09:00:00Z", completed_at: null },
+  { id: "ai-3", model_id: null, task_type: "risk_assessment", status: "pending", input_summary: "Assess SUP-000217 compliance risk", output_summary: null, created_at: "2026-07-03T10:00:00Z", completed_at: null },
+];
+
+export const mockContacts: Contact[] = [
+  { id: "ct-1", company_id: "co-1", first_name: "Reza", last_name: "Hosseini", email: "r.hosseini@simorghholding.com", phone: "+98 21 8877 4401", title: "Procurement Director", status: "active", created_at: "2025-09-05T09:00:00Z" },
+  { id: "ct-2", company_id: "co-1", first_name: "Sara", last_name: "Amini", email: "s.amini@simorghholding.com", phone: "+98 21 8877 4402", title: "Supply Chain Manager", status: "active", created_at: "2025-10-12T09:00:00Z" },
+  { id: "ct-3", company_id: "co-2", first_name: "Kaveh", last_name: "Moradi", email: "k.moradi@cyrusgroup.com", phone: "+98 31 3399 2212", title: "Operations Lead", status: "active", created_at: "2025-11-25T09:00:00Z" },
+  { id: "ct-4", company_id: "co-3", first_name: "Nazanin", last_name: "Farhadi", email: "n.farhadi@alborzrolling.com", phone: "+98 23 3345 6790", title: "VP Procurement", status: "active", created_at: "2025-07-15T09:00:00Z" },
+  { id: "ct-5", company_id: "co-3", first_name: "Omid", last_name: "Rostami", email: "o.rostami@alborzrolling.com", phone: null, title: "Buyer", status: "inactive", created_at: "2025-08-01T09:00:00Z" },
+];
+
+export const mockPoItems: Record<string, PoItem[]> = {
+  "po-1": [
+    { id: "poi-1", po_id: "po-1", description: "Hot-rolled steel coil, 3mm", quantity: 40, unit: "ton", unit_price: 3800, total: 152_000, created_at: "2026-03-01T09:00:00Z" },
+    { id: "poi-2", po_id: "po-1", description: "Freight & inspection", quantity: 1, unit: "lot", unit_price: 32_500, total: 32_500, created_at: "2026-03-01T09:00:00Z" },
+  ],
+  "po-2": [
+    { id: "poi-3", po_id: "po-2", description: "Rebar 16mm grade 60", quantity: 80, unit: "ton", unit_price: 4000, total: 320_000, created_at: "2026-05-10T09:00:00Z" },
+  ],
+};
+
+export const mockSupplierProfiles: SupplierProfile[] = [
+  { id: "sp-1", supplier_id: "sup-000125", portal_status: "active", onboarding_step: 5, documents_submitted: true, last_login: "2026-07-02T14:00:00Z", created_at: "2025-11-02T09:00:00Z" },
+  { id: "sp-2", supplier_id: "sup-000148", portal_status: "active", onboarding_step: 5, documents_submitted: true, last_login: "2026-07-03T09:30:00Z", created_at: "2025-09-18T09:00:00Z" },
+  { id: "sp-3", supplier_id: "sup-000189", portal_status: "onboarding", onboarding_step: 2, documents_submitted: false, last_login: "2026-06-20T11:00:00Z", created_at: "2026-01-14T09:00:00Z" },
+  { id: "sp-4", supplier_id: "sup-000217", portal_status: "suspended", onboarding_step: 4, documents_submitted: true, last_login: "2026-01-10T09:00:00Z", created_at: "2025-06-10T09:00:00Z" },
+];
+
+export const mockSupplierQuotes: SupplierQuote[] = [
+  { id: "sq-1", supplier_id: "sup-000125", po_id: "po-1", quote_number: "Q-2026-0091", total: 184_500, currency: "USD", status: "accepted", valid_until: "2026-03-15", created_at: "2026-02-20T09:00:00Z" },
+  { id: "sq-2", supplier_id: "sup-000148", po_id: "po-2", quote_number: "Q-2026-0104", total: 320_000, currency: "USD", status: "accepted", valid_until: "2026-05-20", created_at: "2026-05-01T09:00:00Z" },
+  { id: "sq-3", supplier_id: "sup-000174", po_id: null, quote_number: "Q-2026-0118", total: 96_200, currency: "USD", status: "under_review", valid_until: "2026-07-10", created_at: "2026-06-15T09:00:00Z" },
+  { id: "sq-4", supplier_id: "sup-000189", po_id: null, quote_number: "Q-2026-0122", total: 41_500, currency: "USD", status: "submitted", valid_until: "2026-07-20", created_at: "2026-06-25T09:00:00Z" },
+];
+
+export const mockAiModels: AiModel[] = [
+  { id: "am-1", name: "Supplier Scoring Model", provider: "anthropic", model_type: "classification", status: "active", endpoint: null, api_key_ref: null, created_at: "2026-05-01T09:00:00Z" },
+  { id: "am-2", name: "Procurement Assistant", provider: "openai", model_type: "chat", status: "active", endpoint: null, api_key_ref: null, created_at: "2026-04-10T09:00:00Z" },
+  { id: "am-3", name: "Document Extraction", provider: "google", model_type: "extraction", status: "training", endpoint: null, api_key_ref: null, created_at: "2026-06-28T09:00:00Z" },
+];
+
+// Customer Inquiry / Opportunity — first MVP concept (see src/lib/supabase.ts CustomerInquiry).
+// Fictional customers/requests — see the DEMO DATA DISCLAIMER at the top of this file.
+export const mockCustomerInquiries: CustomerInquiry[] = [
+  { id: "inq-1", inquiry_number: "INQ-2026-0041", company_id: "co-1", customer_name: "Simorgh Holding", industry: "Steel", request_date: "2026-07-28", product_equipment: "Galvanized steel coil", technical_specification: "0.5mm, Z275 coating, 1250mm width", quantity: "60 tons", required_delivery_date: "2026-09-15", status: "new", created_at: "2026-07-28T09:00:00Z" },
+  { id: "inq-2", inquiry_number: "INQ-2026-0038", company_id: "co-2", customer_name: "Cyrus Industrial Group", industry: "Oil & Gas", request_date: "2026-07-20", product_equipment: "Centrifugal pump", technical_specification: "API 610, 150 m3/h, carbon steel casing", quantity: "2 units", required_delivery_date: "2026-10-01", status: "technical_review", created_at: "2026-07-20T09:00:00Z" },
+  { id: "inq-3", inquiry_number: "INQ-2026-0035", company_id: "co-3", customer_name: "Alborz Rolling Partners", industry: "Steel", request_date: "2026-07-14", product_equipment: "Hot-rolled black sheet", technical_specification: "ST52, 6mm thickness, 2000mm width", quantity: "120 tons", required_delivery_date: "2026-09-01", status: "supplier_search", created_at: "2026-07-14T09:00:00Z" },
+  { id: "inq-4", inquiry_number: "INQ-2026-0031", company_id: null, customer_name: "Meridian EPC Group", industry: "Petrochemical", request_date: "2026-07-05", product_equipment: "Control valves package", technical_specification: "On/Off & control valves, ANSI 300#, ESD service", quantity: "18 valves", required_delivery_date: "2026-11-10", status: "quotation_preparation", created_at: "2026-07-05T09:00:00Z" },
+  { id: "inq-5", inquiry_number: "INQ-2026-0027", company_id: "co-2", customer_name: "Cyrus Industrial Group", industry: "Industrial Equipment", request_date: "2026-06-22", product_equipment: "Gearbox & motor set", technical_specification: "Helical gear unit, 45kW, IE3 motor", quantity: "4 sets", required_delivery_date: "2026-09-30", status: "customer_offer_sent", created_at: "2026-06-22T09:00:00Z" },
+  { id: "inq-6", inquiry_number: "INQ-2026-0022", company_id: "co-1", customer_name: "Simorgh Holding", industry: "Oil & Gas", request_date: "2026-06-10", product_equipment: "Pressure transmitters", technical_specification: "4-20mA HART, SIL2, 316SS wetted parts", quantity: "30 units", required_delivery_date: "2026-08-25", status: "negotiation", created_at: "2026-06-10T09:00:00Z" },
+  { id: "inq-7", inquiry_number: "INQ-2026-0015", company_id: "co-3", customer_name: "Alborz Rolling Partners", industry: "Steel", request_date: "2026-05-18", product_equipment: "Stainless steel sheet", technical_specification: "304 grade, 2mm, 2B finish", quantity: "40 tons", required_delivery_date: "2026-07-20", status: "won", created_at: "2026-05-18T09:00:00Z" },
+  { id: "inq-8", inquiry_number: "INQ-2026-0009", company_id: null, customer_name: "Compass Consulting Group", industry: "Petrochemical", request_date: "2026-04-30", product_equipment: "Heat exchanger", technical_specification: "Shell & tube, TEMA class R, carbon steel", quantity: "1 unit", required_delivery_date: "2026-07-01", status: "lost", created_at: "2026-04-30T09:00:00Z" },
+];

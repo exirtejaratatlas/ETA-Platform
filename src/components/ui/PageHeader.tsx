@@ -12,7 +12,7 @@ export function PageHeader({ title, description, actions, icon }: PageHeaderProp
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6 animate-fade-in-up">
       <div className="flex items-start gap-3">
         {icon && (
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600 shrink-0">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-copper-50 text-copper-600 shrink-0">
             {icon}
           </div>
         )}

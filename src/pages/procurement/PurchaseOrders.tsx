@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ShoppingBag, Plus, Search } from "lucide-react";
-import { supabase, type PurchaseOrder, type PoItem } from "../../lib/supabase";
+import type { PurchaseOrder, PoItem } from "../../lib/supabase";
+import { getPurchaseOrders, getSuppliers, getPoItems } from "../../lib/data";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { Card } from "../../components/ui/Card";
 import { Badge } from "../../components/ui/Badge";
@@ -11,11 +12,11 @@ import { DataTable } from "../../components/ui/DataTable";
 import { Spinner } from "../../components/ui/Spinner";
 import { formatCurrency, formatDate } from "../../lib/format";
 
-const statusTones: Record<string, "neutral" | "brand" | "gold" | "teal" | "success" | "error"> = {
+const statusTones: Record<string, "neutral" | "info" | "warning" | "copper" | "success" | "error"> = {
   draft: "neutral",
-  submitted: "gold",
-  approved: "brand",
-  shipped: "teal",
+  submitted: "warning",
+  approved: "info",
+  shipped: "copper",
   received: "success",
   cancelled: "error",
 };
@@ -29,10 +30,9 @@ export default function PurchaseOrders() {
 
   useEffect(() => {
     async function load() {
-      const { data: poData } = await supabase.from("purchase_orders").select("*").order("created_at", { ascending: false });
-      const { data: suppliers } = await supabase.from("suppliers").select("id, name");
-      const supplierMap = new Map((suppliers ?? []).map((s) => [s.id, s.name] as [string, string]));
-      const enriched = (poData ?? []).map((po) => ({ ...po, supplier_name: po.supplier_id ? supplierMap.get(po.supplier_id) : undefined }));
+      const [poData, suppliers] = await Promise.all([getPurchaseOrders(), getSuppliers()]);
+      const supplierMap = new Map(suppliers.map((s) => [s.id, s.name] as [string, string]));
+      const enriched = poData.map((po) => ({ ...po, supplier_name: po.supplier_id ? supplierMap.get(po.supplier_id) : undefined }));
       setOrders(enriched);
       setLoading(false);
     }
@@ -42,8 +42,8 @@ export default function PurchaseOrders() {
   async function openPODetails(po: PurchaseOrder & { supplier_name?: string }) {
     setSelectedPO({ po, items: [] });
     setItemsLoading(true);
-    const { data } = await supabase.from("po_items").select("*").eq("po_id", po.id);
-    setSelectedPO({ po, items: data ?? [] });
+    const items = await getPoItems(po.id);
+    setSelectedPO({ po, items });
     setItemsLoading(false);
   }
 

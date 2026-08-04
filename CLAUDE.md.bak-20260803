@@ -103,12 +103,9 @@ public/Logo.svg
 Never replace logo.
 Never create alternative logos.
 
-Brand Colors (ETA-Blueprint is authority — 20-BRANDING/04-Visual-Identity/Colors.md, doc ETA-VISUAL-001, status Approved):
-- ETA Navy #0F172A — primary brand color
-- ETA Copper #C57B39 — accent color, used sparingly for CTAs, highlights, and premium elements
-- Neutrals + semantic Success/Warning/Error/Information colors round out the palette; see Colors.md for exact hex values.
-- There is no "ETA Green" or "ETA Orange" in the approved palette.
-- Implementation: tailwind.config.js `surface` (Navy family) and `copper` tokens. Do not reintroduce standalone "brand"/"gold"/"teal" color ramps — use `copper` for accent/highlight and `info`/`success`/`warning`/`error` for semantic states.
+Brand Colors:
+- ETA Green
+- ETA Orange
 
 Maintain:
 - professional industrial identity

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Building2, TrendingUp, Package, ShoppingBag, Sparkles, ArrowUpRight, Clock, CircleCheck as CheckCircle2, CircleAlert as AlertCircle } from "lucide-react";
-import { supabase, type Company, type Deal, type PurchaseOrder, type Supplier, type AiTask } from "../lib/supabase";
+import type { Company, Deal, PurchaseOrder, Supplier, AiTask } from "../lib/supabase";
+import { getCompanies, getDeals, getPurchaseOrders, getSuppliers, getAiTasks } from "../lib/data";
 import { PageHeader } from "../components/ui/PageHeader";
 import { StatCard } from "../components/ui/StatCard";
 import { Card, CardHeader, CardBody, CardTitle } from "../components/ui/Card";
@@ -21,17 +22,17 @@ export default function Dashboard() {
   useEffect(() => {
     async function load() {
       const [c, d, p, s, t] = await Promise.all([
-        supabase.from("companies").select("*").order("created_at", { ascending: false }),
-        supabase.from("deals").select("*").order("created_at", { ascending: false }),
-        supabase.from("purchase_orders").select("*").order("created_at", { ascending: false }),
-        supabase.from("suppliers").select("*").order("created_at", { ascending: false }),
-        supabase.from("ai_tasks").select("*").order("created_at", { ascending: false }).limit(5),
+        getCompanies(),
+        getDeals(),
+        getPurchaseOrders(),
+        getSuppliers(),
+        getAiTasks(5),
       ]);
-      setCompanies(c.data ?? []);
-      setDeals(d.data ?? []);
-      setPos(p.data ?? []);
-      setSuppliers(s.data ?? []);
-      setAiTasks(t.data ?? []);
+      setCompanies(c);
+      setDeals(d);
+      setPos(p);
+      setSuppliers(s);
+      setAiTasks(t);
       setLoading(false);
     }
     load();
@@ -53,11 +54,11 @@ export default function Dashboard() {
   const activeSuppliers = suppliers.filter((s) => s.status === "active");
   const runningTasks = aiTasks.filter((t) => t.status === "running" || t.status === "pending");
 
-  const stageColors: Record<string, "brand" | "gold" | "teal" | "success" | "warning" | "error" | "neutral"> = {
+  const stageColors: Record<string, "copper" | "info" | "success" | "warning" | "error" | "neutral"> = {
     lead: "neutral",
-    qualified: "brand",
-    proposal: "teal",
-    negotiation: "gold",
+    qualified: "info",
+    proposal: "warning",
+    negotiation: "copper",
     won: "success",
     lost: "error",
   };
@@ -77,19 +78,19 @@ export default function Dashboard() {
           value={formatCompactCurrency(totalPipeline)}
           icon={<TrendingUp size={20} />}
           trend={{ value: "+12.5%", positive: true }}
-          tone="brand"
+          tone="copper"
         />
         <StatCard
           label="Active Companies"
           value={companies.length}
           icon={<Building2 size={20} />}
-          tone="teal"
+          tone="info"
         />
         <StatCard
           label="Open Purchase Orders"
           value={openPOs.length}
           icon={<ShoppingBag size={20} />}
-          tone="gold"
+          tone="warning"
         />
         <StatCard
           label="Active Suppliers"
@@ -105,7 +106,7 @@ export default function Dashboard() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Sales Pipeline</CardTitle>
-              <Link to="/crm/deals" className="text-xs font-medium text-brand-600 hover:text-brand-700 flex items-center gap-1">
+              <Link to="/crm/deals" className="text-xs font-medium text-copper-600 hover:text-copper-700 flex items-center gap-1">
                 View all <ArrowUpRight size={12} />
               </Link>
             </div>
@@ -183,7 +184,7 @@ export default function Dashboard() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Recent Purchase Orders</CardTitle>
-              <Link to="/procurement/orders" className="text-xs font-medium text-brand-600 hover:text-brand-700 flex items-center gap-1">
+              <Link to="/procurement/orders" className="text-xs font-medium text-copper-600 hover:text-copper-700 flex items-center gap-1">
                 View all <ArrowUpRight size={12} />
               </Link>
             </div>
@@ -204,10 +205,10 @@ export default function Dashboard() {
                   <Badge
                     tone={
                       po.status === "received" ? "success" :
-                      po.status === "shipped" ? "teal" :
-                      po.status === "approved" ? "brand" :
+                      po.status === "shipped" ? "copper" :
+                      po.status === "approved" ? "info" :
                       po.status === "cancelled" ? "error" :
-                      po.status === "submitted" ? "gold" : "neutral"
+                      po.status === "submitted" ? "warning" : "neutral"
                     }
                   >
                     {po.status}
@@ -222,7 +223,7 @@ export default function Dashboard() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>AI Task Activity</CardTitle>
-              <Link to="/ai-platform" className="text-xs font-medium text-brand-600 hover:text-brand-700 flex items-center gap-1">
+              <Link to="/ai-platform" className="text-xs font-medium text-copper-600 hover:text-copper-700 flex items-center gap-1">
                 View all <ArrowUpRight size={12} />
               </Link>
             </div>
@@ -234,7 +235,7 @@ export default function Dashboard() {
                   <div className="flex items-center gap-3">
                     <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${
                       task.status === "completed" ? "bg-green-50 text-green-600" :
-                      task.status === "running" ? "bg-brand-50 text-brand-600" :
+                      task.status === "running" ? "bg-copper-50 text-copper-600" :
                       task.status === "pending" ? "bg-amber-50 text-amber-600" :
                       "bg-red-50 text-red-600"
                     }`}>
@@ -250,7 +251,7 @@ export default function Dashboard() {
                   </div>
                   <Badge tone={
                     task.status === "completed" ? "success" :
-                    task.status === "running" ? "brand" :
+                    task.status === "running" ? "copper" :
                     task.status === "pending" ? "warning" : "error"
                   }>
                     {task.status}
@@ -258,7 +259,7 @@ export default function Dashboard() {
                 </div>
               ))}
               {runningTasks.length > 0 && (
-                <div className="flex items-center gap-2 pt-2 text-xs text-brand-600">
+                <div className="flex items-center gap-2 pt-2 text-xs text-copper-600">
                   <Sparkles size={12} className="animate-pulse-soft" />
                   {runningTasks.length} task{runningTasks.length > 1 ? "s" : ""} in progress
                 </div>
