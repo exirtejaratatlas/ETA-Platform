@@ -17,19 +17,34 @@ import Settings from "./pages/Settings";
 import Home from "./pages/site/Home";
 import About from "./pages/site/About";
 import Industries from "./pages/site/Industries";
-import Services from "./pages/site/Services";
+// Renders the "Products & Capabilities" hub at /products-capabilities — filename kept as
+// Services.tsx per D2 (ETA-Blueprint/13-DECISIONS/ETA-WEBSITE-ARCHITECTURE-DECISION-RESOLUTION-RECORD.md)
+// to avoid import churn; file rename deferred to a future refactor.
+import ProductsCapabilities from "./pages/site/Services";
+import EquipmentSupply from "./pages/site/EquipmentSupply";
+import SteelTrading from "./pages/site/SteelTrading";
+import SupplierNetwork from "./pages/site/SupplierNetwork";
 import PlatformOverview from "./pages/site/PlatformOverview";
 import Contact from "./pages/site/Contact";
 
 export default function App() {
   return (
     <Routes>
-      {/* Public website — ETA-Blueprint 20-BRANDING/03-Website/Sitemap.md */}
+      {/* Public website — ETA-Blueprint 20-BRANDING/03-Website/Sitemap.md, superseded for
+          current-phase nav/structure by D1-D4 (ETA-Blueprint/13-DECISIONS/DECISIONS.md and
+          .../ETA-WEBSITE-ARCHITECTURE-DECISION-RESOLUTION-RECORD.md).
+          /products-capabilities is the renamed former /services (D1); /services now redirects.
+          /equipment-supply, /steel-trading, /supplier-network are its child pages, added per
+          CR-001 (D2). */}
       <Route element={<SiteLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/industries" element={<Industries />} />
-        <Route path="/services" element={<Services />} />
+        <Route path="/products-capabilities" element={<ProductsCapabilities />} />
+        <Route path="/services" element={<Navigate to="/products-capabilities" replace />} />
+        <Route path="/equipment-supply" element={<EquipmentSupply />} />
+        <Route path="/steel-trading" element={<SteelTrading />} />
+        <Route path="/supplier-network" element={<SupplierNetwork />} />
         <Route path="/platform" element={<PlatformOverview />} />
         <Route path="/contact" element={<Contact />} />
       </Route>

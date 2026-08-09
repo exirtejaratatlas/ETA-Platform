@@ -113,9 +113,9 @@ export default function SupplierPortal() {
                 </div>
                 <div className="hidden md:flex items-center gap-2 text-xs text-surface-500">
                   {profile.documents_submitted ? (
-                    <><FileCheck size={14} className="text-green-500" /> Docs submitted</>
+                    <><FileCheck size={14} className="text-success" /> Docs submitted</>
                   ) : (
-                    <><Clock size={14} className="text-amber-500" /> Awaiting docs</>
+                    <><Clock size={14} className="text-warning" /> Awaiting docs</>
                   )}
                 </div>
                 <div className="text-xs text-surface-400 hidden lg:block w-20 text-right">

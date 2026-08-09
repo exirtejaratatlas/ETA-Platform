@@ -114,10 +114,10 @@ export default function AiPlatform() {
                 style={{ animationDelay: `${i * 30}ms` }}
               >
                 <div className={`flex h-9 w-9 items-center justify-center rounded-lg shrink-0 ${
-                  task.status === "completed" ? "bg-green-50 text-green-600" :
+                  task.status === "completed" ? "bg-success/10 text-success-dark" :
                   task.status === "running" ? "bg-copper-50 text-copper-600" :
-                  task.status === "pending" ? "bg-amber-50 text-amber-600" :
-                  "bg-red-50 text-red-600"
+                  task.status === "pending" ? "bg-warning/10 text-warning-dark" :
+                  "bg-error/10 text-error-dark"
                 }`}>
                   {task.status === "completed" ? <CheckCircle2 size={16} /> :
                    task.status === "running" ? <Activity size={16} className="animate-pulse-soft" /> :

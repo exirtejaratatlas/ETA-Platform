@@ -153,7 +153,7 @@ export default function Dashboard() {
                 <p className="text-xs text-surface-500 uppercase tracking-wide font-medium">Won Deals Revenue</p>
                 <p className="text-3xl font-semibold text-surface-900 mt-1">{formatCurrency(totalRevenue)}</p>
                 <div className="flex items-center gap-1.5 mt-1">
-                  <CheckCircle2 size={14} className="text-green-500" />
+                  <CheckCircle2 size={14} className="text-success" />
                   <span className="text-xs text-surface-500">{wonDeals.length} deals closed</span>
                 </div>
               </div>
@@ -234,10 +234,10 @@ export default function Dashboard() {
                 <div key={task.id} className="flex items-center justify-between py-2 border-b border-surface-100 last:border-0">
                   <div className="flex items-center gap-3">
                     <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${
-                      task.status === "completed" ? "bg-green-50 text-green-600" :
+                      task.status === "completed" ? "bg-success/10 text-success-dark" :
                       task.status === "running" ? "bg-copper-50 text-copper-600" :
-                      task.status === "pending" ? "bg-amber-50 text-amber-600" :
-                      "bg-red-50 text-red-600"
+                      task.status === "pending" ? "bg-warning/10 text-warning-dark" :
+                      "bg-error/10 text-error-dark"
                     }`}>
                       {task.status === "completed" ? <CheckCircle2 size={16} /> :
                        task.status === "running" ? <Sparkles size={16} className="animate-pulse-soft" /> :

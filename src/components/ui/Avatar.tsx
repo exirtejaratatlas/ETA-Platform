@@ -12,7 +12,7 @@ const sizeClasses = {
 
 const toneClasses = {
   copper: "bg-copper-50 text-copper-700",
-  info: "bg-blue-50 text-blue-700",
+  info: "bg-info/10 text-info-dark",
   neutral: "bg-surface-100 text-surface-600",
 };
 

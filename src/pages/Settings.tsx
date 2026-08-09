@@ -44,7 +44,7 @@ export default function Settings() {
           <CardBody>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-green-500" />
+                <span className="h-2 w-2 rounded-full bg-success" />
                 <span className="text-sm text-surface-700">Connected to Supabase</span>
               </div>
               <Badge tone="success">Active</Badge>

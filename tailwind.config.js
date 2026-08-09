@@ -9,6 +9,40 @@ export default {
         display: ["Inter", "Vazirmatn", "system-ui", "sans-serif"],
         mono: ["JetBrains Mono", "ui-monospace", "monospace"],
       },
+      // Type scale — ETA-Blueprint 20-BRANDING/04-Visual-Identity/Typography.md (ETA-VISUAL-002, Approved).
+      // Sizes/line-heights/letter-spacing copied verbatim; not yet applied to any component (token definition only).
+      // Display's approved range is 48-64px; 48px (the lower bound) is used as the token value.
+      fontSize: {
+        // Display scale — ETA-Blueprint 13-DECISIONS/ETA-Website-Typography-Decision-Resolution-
+        // T12-T13.md (T13, Approved) and .../ETA-Website-Typography-Decision-Resolution-T14.md
+        // (T14, naming). Three-step responsive scale for Home's hero only: `display-sm` (mobile/
+        // base) → `display` (tablet/sm:, unchanged from its pre-existing 48px value) →
+        // `display-lg` (desktop/lg:). Pair as `text-display-sm sm:text-display lg:text-display-lg`.
+        "display-sm": ["2.25rem", { lineHeight: "1.2", letterSpacing: "-0.01em" }], // 36px, hero mobile
+        display: ["3rem", { lineHeight: "1.2", letterSpacing: "-0.01em" }], // 48px, hero tablet (sm:+)
+        "display-lg": ["3.5rem", { lineHeight: "1.2", letterSpacing: "-0.01em" }], // 56px, hero desktop (lg:+)
+        h1: ["2.5rem", { lineHeight: "1.2", letterSpacing: "-0.01em" }], // 40px, major page titles
+        h2: ["2rem", { lineHeight: "1.2", letterSpacing: "-0.01em" }], // 32px, section titles
+        h3: ["1.5rem", { lineHeight: "1.2", letterSpacing: "-0.01em" }], // 24px, subsections
+        // 20px, "Heading 4" per Typography.md. Also reused below as the desktop (sm:+) step
+        // of `component-title` — see that entry for why there isn't a second 20px token.
+        h4: ["1.25rem", { lineHeight: "1.2", letterSpacing: "-0.01em" }],
+        // Component Title — ETA-Blueprint 13-DECISIONS/ETA-Website-Typography-Execution-
+        // Decision-Resolution.md (T6, Approved). Mobile/base value only (18px); the desktop
+        // (20px) step is the existing `h4` token above, reused as-is rather than duplicated,
+        // since both need identical heading-style line-height/letter-spacing. Pair as
+        // `text-component-title sm:text-h4` at call sites. Weight (600 / font-semibold) is
+        // applied via a separate `font-semibold` utility at each usage site, same as every
+        // other heading token here — Tailwind's fontSize scale doesn't carry font-weight.
+        // Purpose per T6: card titles, capability titles, industry titles, component headers.
+        // Explicitly not `body-lg` — see T6 for why (body-lg carries body-style 150%/0%
+        // line-height/letter-spacing, not this role's heading-style treatment).
+        "component-title": ["1.125rem", { lineHeight: "1.2", letterSpacing: "-0.01em" }],
+        "body-lg": ["1.125rem", { lineHeight: "1.5", letterSpacing: "0" }], // 18px, highlighted paragraphs
+        body: ["1rem", { lineHeight: "1.5", letterSpacing: "0" }], // 16px, default content
+        "body-sm": ["0.875rem", { lineHeight: "1.5", letterSpacing: "0" }], // 14px, secondary information
+        caption: ["0.75rem", { lineHeight: "1.4", letterSpacing: "0.01em" }], // 12px, metadata/timestamps/helper text
+      },
       colors: {
         // ETA Copper — primary accent color, ETA-Blueprint 20-BRANDING/04-Visual-Identity/Colors.md (ETA-VISUAL-001)
         // Note: surface-900 (#0f172a) already matches "ETA Navy" from the same spec — reused as-is, not duplicated here.

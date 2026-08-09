@@ -16,15 +16,15 @@ export function SectionHeading({
   return (
     <div className={`max-w-2xl ${align === "center" ? "mx-auto text-center" : ""}`}>
       {eyebrow && (
-        <p className={`text-xs font-semibold uppercase tracking-wider mb-2 ${light ? "text-copper-300" : "text-copper-600"}`}>
+        <p className={`text-caption font-semibold uppercase mb-2 ${light ? "text-copper-300" : "text-copper-400"}`}>
           {eyebrow}
         </p>
       )}
-      <h2 className={`text-2xl sm:text-3xl font-semibold tracking-tight ${light ? "text-white" : "text-surface-900"}`}>
+      <h2 className={`text-h3 sm:text-h2 font-semibold ${light ? "text-white" : "text-surface-900"}`}>
         {title}
       </h2>
       {description && (
-        <p className={`mt-3 text-base ${light ? "text-surface-300" : "text-surface-500"}`}>{description}</p>
+        <p className={`mt-3 text-body ${light ? "text-surface-300" : "text-surface-500"}`}>{description}</p>
       )}
     </div>
   );
@@ -56,12 +56,12 @@ export function Pillar({
   description?: string;
 }) {
   return (
-    <div className="rounded-2xl border border-surface-200 bg-white p-6 shadow-soft">
+    <div className="rounded-xl border border-surface-200 bg-white p-6 shadow-soft">
       <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-copper-50 text-copper-600 mb-4">
         {icon}
       </div>
-      <h3 className="text-base font-semibold text-surface-900">{title}</h3>
-      {description && <p className="mt-1.5 text-sm text-surface-500">{description}</p>}
+      <h3 className="text-component-title sm:text-h4 font-semibold text-surface-900">{title}</h3>
+      {description && <p className="mt-1.5 text-body-sm text-surface-500">{description}</p>}
     </div>
   );
 }
@@ -72,7 +72,7 @@ export function ChipList({ items }: { items: string[] }) {
       {items.map((item) => (
         <span
           key={item}
-          className="inline-flex items-center rounded-full border border-surface-200 bg-surface-50 px-3 py-1.5 text-sm font-medium text-surface-700"
+          className="inline-flex items-center rounded-full border border-surface-200 bg-surface-50 px-3 py-1.5 text-body-sm font-medium text-surface-700"
         >
           {item}
         </span>

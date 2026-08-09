@@ -12,19 +12,19 @@ interface BadgeProps {
 const toneClasses: Record<Tone, string> = {
   neutral: "bg-surface-100 text-surface-600",
   copper: "bg-copper-50 text-copper-700",
-  info: "bg-blue-50 text-blue-700",
-  success: "bg-green-50 text-green-700",
-  warning: "bg-amber-50 text-amber-700",
-  error: "bg-red-50 text-red-700",
+  info: "bg-info/10 text-info-dark",
+  success: "bg-success/10 text-success-dark",
+  warning: "bg-warning/10 text-warning-dark",
+  error: "bg-error/10 text-error-dark",
 };
 
 const dotColors: Record<Tone, string> = {
   neutral: "bg-surface-400",
   copper: "bg-copper-500",
-  info: "bg-blue-500",
-  success: "bg-green-500",
-  warning: "bg-amber-500",
-  error: "bg-red-500",
+  info: "bg-info",
+  success: "bg-success",
+  warning: "bg-warning",
+  error: "bg-error",
 };
 
 export function Badge({ tone = "neutral", children, className = "", dot = false }: BadgeProps) {

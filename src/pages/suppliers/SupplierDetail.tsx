@@ -53,11 +53,11 @@ const eventTone: Record<SupplierRelationshipEvent["type"], "success" | "warning"
 };
 
 const eventIconColor: Record<SupplierRelationshipEvent["type"], string> = {
-  onboarded: "text-blue-500",
+  onboarded: "text-info",
   order: "text-copper-500",
-  review: "text-amber-500",
-  certification: "text-green-500",
-  issue: "text-red-500",
+  review: "text-warning",
+  certification: "text-success",
+  issue: "text-error",
   note: "text-surface-400",
 };
 

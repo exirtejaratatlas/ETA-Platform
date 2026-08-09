@@ -8,10 +8,10 @@ interface ProgressProps {
 
 const toneClasses = {
   copper: "bg-copper-500",
-  info: "bg-blue-500",
-  success: "bg-green-500",
-  warning: "bg-amber-500",
-  error: "bg-red-500",
+  info: "bg-info",
+  success: "bg-success",
+  warning: "bg-warning",
+  error: "bg-error",
   neutral: "bg-surface-400",
 };
 

@@ -2,11 +2,15 @@ import { useState } from "react";
 import { NavLink, Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 
+// Nav per D3 (ETA-Blueprint/13-DECISIONS/ETA-WEBSITE-ARCHITECTURE-DECISION-RESOLUTION-RECORD.md):
+// flat, 6 items, no mega-menu. Child capability pages (equipment-supply/steel-trading/
+// supplier-network) are reached from the Products & Capabilities hub page, not listed here.
 const navLinks = [
+  { to: "/", label: "Home" },
   { to: "/about", label: "About" },
+  { to: "/products-capabilities", label: "Products & Capabilities" },
   { to: "/industries", label: "Industries" },
-  { to: "/services", label: "Services" },
-  { to: "/platform", label: "ETA Platform" },
+  { to: "/platform", label: "Platform Vision" },
   { to: "/contact", label: "Contact" },
 ];
 
@@ -31,9 +35,10 @@ export function SiteHeader() {
             <NavLink
               key={link.to}
               to={link.to}
+              end={link.to === "/"}
               className={({ isActive }) =>
-                `rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                  isActive ? "text-copper-600" : "text-surface-600 hover:text-surface-900"
+                `rounded-lg px-3 py-2 text-body-sm font-medium transition-colors ${
+                  isActive ? "text-copper-500" : "text-surface-600 hover:text-surface-900"
                 }`
               }
             >
@@ -44,14 +49,8 @@ export function SiteHeader() {
 
         <div className="ml-auto hidden lg:flex items-center gap-3">
           <Link
-            to="/dashboard"
-            className="text-sm font-medium text-surface-600 hover:text-surface-900 transition-colors"
-          >
-            Platform Preview
-          </Link>
-          <Link
             to="/contact"
-            className="inline-flex items-center justify-center rounded-lg bg-copper-600 px-4 h-9 text-sm font-medium text-white shadow-soft hover:bg-copper-700 transition-colors"
+            className="inline-flex items-center justify-center rounded-lg bg-copper-600 px-4 h-9 text-body-sm font-semibold text-white shadow-soft hover:bg-copper-700 transition-colors"
           >
             Request a Quote
           </Link>
@@ -72,10 +71,11 @@ export function SiteHeader() {
             <NavLink
               key={link.to}
               to={link.to}
+              end={link.to === "/"}
               onClick={() => setOpen(false)}
               className={({ isActive }) =>
-                `block rounded-lg px-3 py-2.5 text-sm font-medium ${
-                  isActive ? "bg-copper-50 text-copper-700" : "text-surface-600 hover:bg-surface-50"
+                `block rounded-lg px-3 py-2.5 text-body-sm font-medium ${
+                  isActive ? "bg-copper-50 text-copper-500" : "text-surface-600 hover:bg-surface-50"
                 }`
               }
             >
@@ -83,16 +83,9 @@ export function SiteHeader() {
             </NavLink>
           ))}
           <Link
-            to="/dashboard"
-            onClick={() => setOpen(false)}
-            className="block rounded-lg px-3 py-2.5 text-sm font-medium text-surface-600 hover:bg-surface-50"
-          >
-            Platform Preview
-          </Link>
-          <Link
             to="/contact"
             onClick={() => setOpen(false)}
-            className="mt-2 flex items-center justify-center rounded-lg bg-copper-600 px-4 h-10 text-sm font-medium text-white"
+            className="mt-2 flex items-center justify-center rounded-lg bg-copper-600 px-4 h-10 text-body-sm font-semibold text-white"
           >
             Request a Quote
           </Link>

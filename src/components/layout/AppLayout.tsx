@@ -6,7 +6,7 @@ import { MobileNav, useMobileNav } from "./MobileNav";
 
 function DemoDataBanner() {
   return (
-    <div className="flex items-center justify-center gap-2 border-b border-amber-200 bg-amber-50 px-4 py-1.5 text-center text-xs font-medium text-amber-800">
+    <div className="flex items-center justify-center gap-2 border-b border-warning/20 bg-warning/10 px-4 py-1.5 text-center text-xs font-medium text-warning-dark">
       <TriangleAlert size={13} className="shrink-0" />
       Demo data — all companies, suppliers, and contacts shown are fictional and for illustration only.
     </div>

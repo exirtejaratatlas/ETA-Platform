@@ -36,12 +36,12 @@ export default function Industries() {
   return (
     <div>
       <section className="bg-surface-900 py-20">
-        <div className="mx-auto max-w-4xl px-4 lg:px-8 text-center">
-          <p className="text-xs font-semibold uppercase tracking-wider text-copper-400 mb-3">Industries</p>
-          <h1 className="text-3xl sm:text-4xl font-semibold text-white tracking-tight">
+        <div className="mx-auto max-w-4xl px-4 lg:px-8 text-center animate-fade-in-up">
+          <p className="text-caption font-semibold uppercase text-copper-400 mb-3">Industries</p>
+          <h1 className="text-h2 sm:text-h1 font-semibold text-white">
             Mission-critical industries we serve
           </h1>
-          <p className="mt-5 text-lg text-surface-300">
+          <p className="mt-5 text-body-lg text-surface-300">
             ETA delivers procurement, engineering, and sourcing solutions for mission-critical industries
             where reliability, technical accuracy, and supplier quality are essential.
           </p>
@@ -49,14 +49,14 @@ export default function Industries() {
       </section>
 
       <Section>
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 animate-fade-in-up">
           {industries.map((ind) => (
-            <div key={ind.title} className="rounded-2xl border border-surface-200 p-6">
+            <div key={ind.title} className="rounded-xl border border-surface-200 p-6 shadow-soft">
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-copper-50 text-copper-600 mb-4">
                 <ind.icon size={20} />
               </div>
-              <h3 className="text-lg font-semibold text-surface-900">{ind.title}</h3>
-              <p className="mt-2 text-sm text-surface-500">{ind.intro}</p>
+              <h3 className="text-component-title sm:text-h4 font-semibold text-surface-900">{ind.title}</h3>
+              <p className="mt-2 text-body-sm text-surface-500">{ind.intro}</p>
               {ind.items.length > 0 && (
                 <div className="mt-3">
                   <ChipList items={ind.items} />
