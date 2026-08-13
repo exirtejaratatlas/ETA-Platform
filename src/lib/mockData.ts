@@ -312,18 +312,21 @@ export const mockDeals: Deal[] = [
 ];
 
 export const mockPurchaseOrders: PurchaseOrder[] = [
-  { id: "po-1", po_number: "PO-2026-0143", supplier_id: "sup-000125", status: "received", total: 184_500, currency: "USD", order_date: "2026-03-01", expected_delivery: "2026-03-10", created_at: "2026-03-01T09:00:00Z" },
-  { id: "po-2", po_number: "PO-2026-0158", supplier_id: "sup-000148", status: "shipped", total: 320_000, currency: "USD", order_date: "2026-05-10", expected_delivery: "2026-06-05", created_at: "2026-05-10T09:00:00Z" },
-  { id: "po-3", po_number: "PO-2026-0161", supplier_id: "sup-000174", status: "approved", total: 96_200, currency: "USD", order_date: "2026-06-01", expected_delivery: "2026-06-25", created_at: "2026-06-01T09:00:00Z" },
-  { id: "po-4", po_number: "PO-2026-0165", supplier_id: "sup-000203", status: "submitted", total: 41_000, currency: "USD", order_date: "2026-06-18", expected_delivery: "2026-07-02", created_at: "2026-06-18T09:00:00Z" },
-  { id: "po-5", po_number: "PO-2026-0170", supplier_id: "sup-000217", status: "draft", total: 15_800, currency: "USD", order_date: "2026-07-01", expected_delivery: null, created_at: "2026-07-01T09:00:00Z" },
+  { id: "po-1", po_number: "PO-2026-0143", supplier_id: "sup-000125", rfq_id: null, status: "received", total: 184_500, currency: "USD", order_date: "2026-03-01", expected_delivery: "2026-03-10", created_at: "2026-03-01T09:00:00Z" },
+  { id: "po-2", po_number: "PO-2026-0158", supplier_id: "sup-000148", rfq_id: null, status: "shipped", total: 320_000, currency: "USD", order_date: "2026-05-10", expected_delivery: "2026-06-05", created_at: "2026-05-10T09:00:00Z" },
+  { id: "po-3", po_number: "PO-2026-0161", supplier_id: "sup-000174", rfq_id: null, status: "approved", total: 96_200, currency: "USD", order_date: "2026-06-01", expected_delivery: "2026-06-25", created_at: "2026-06-01T09:00:00Z" },
+  { id: "po-4", po_number: "PO-2026-0165", supplier_id: "sup-000203", rfq_id: null, status: "submitted", total: 41_000, currency: "USD", order_date: "2026-06-18", expected_delivery: "2026-07-02", created_at: "2026-06-18T09:00:00Z" },
+  { id: "po-5", po_number: "PO-2026-0170", supplier_id: "sup-000217", rfq_id: null, status: "draft", total: 15_800, currency: "USD", order_date: "2026-07-01", expected_delivery: null, created_at: "2026-07-01T09:00:00Z" },
+  // Raised from an RFQ award — closes the Inquiry -> RFQ -> Award -> PO chain (ETA-ENT-RFQ-005 stage 12).
+  { id: "po-6", po_number: "PO-2026-0149", supplier_id: "sup-000125", rfq_id: "rfq-000115", status: "received", total: 32_900, currency: "USD", order_date: "2026-04-12", expected_delivery: "2026-05-24", created_at: "2026-04-12T09:00:00Z" },
+  { id: "po-7", po_number: "PO-2026-0182", supplier_id: "sup-000148", rfq_id: "rfq-000121", status: "approved", total: 103_200, currency: "USD", order_date: "2026-06-16", expected_delivery: "2026-07-20", created_at: "2026-06-16T09:00:00Z" },
 ];
 
-export const mockAiTasks: AiTask[] = [
-  { id: "ai-1", model_id: null, task_type: "supplier_scoring", status: "completed", input_summary: "Score SUP-000125 on delivery reliability", output_summary: "Score: 4.2/5", created_at: "2026-07-01T09:00:00Z", completed_at: "2026-07-01T09:05:00Z" },
-  { id: "ai-2", model_id: null, task_type: "price_analysis", status: "running", input_summary: "Compare rebar pricing across active suppliers", output_summary: null, created_at: "2026-07-03T09:00:00Z", completed_at: null },
-  { id: "ai-3", model_id: null, task_type: "risk_assessment", status: "pending", input_summary: "Assess SUP-000217 compliance risk", output_summary: null, created_at: "2026-07-03T10:00:00Z", completed_at: null },
-];
+// No AI task history. Previous entries advertised supplier scoring, price analysis and
+// risk assessment as if they had run — none of those capabilities exist, and all three are
+// forbidden without a Change Request (IMPLEMENTATION-GATE.md / CODING-RULES.md).
+// Corrects PHASE6-PLATFORM-EXECUTION-STRATEGY.md §2.4; answers its §6 Q16 in the affirmative.
+export const mockAiTasks: AiTask[] = [];
 
 export const mockContacts: Contact[] = [
   { id: "ct-1", company_id: "co-1", first_name: "Reza", last_name: "Hosseini", email: "r.hosseini@simorghholding.com", phone: "+98 21 8877 4401", title: "Procurement Director", status: "active", created_at: "2025-09-05T09:00:00Z" },
@@ -357,11 +360,10 @@ export const mockSupplierQuotes: SupplierQuote[] = [
   { id: "sq-4", supplier_id: "sup-000189", po_id: null, quote_number: "Q-2026-0122", total: 41_500, currency: "USD", status: "submitted", valid_until: "2026-07-20", created_at: "2026-06-25T09:00:00Z" },
 ];
 
-export const mockAiModels: AiModel[] = [
-  { id: "am-1", name: "Supplier Scoring Model", provider: "anthropic", model_type: "classification", status: "active", endpoint: null, api_key_ref: null, created_at: "2026-05-01T09:00:00Z" },
-  { id: "am-2", name: "Procurement Assistant", provider: "openai", model_type: "chat", status: "active", endpoint: null, api_key_ref: null, created_at: "2026-04-10T09:00:00Z" },
-  { id: "am-3", name: "Document Extraction", provider: "google", model_type: "extraction", status: "training", endpoint: null, api_key_ref: null, created_at: "2026-06-28T09:00:00Z" },
-];
+// No registered AI models. Previous entries listed live anthropic/openai/google providers as
+// if integrations existed — none do. D4 forbids present-tense claims of a live AI capability
+// on any ETA surface. Planned capabilities are presented as future-vision on /ai-platform.
+export const mockAiModels: AiModel[] = [];
 
 // Customer Inquiry / Opportunity — first MVP concept (see src/lib/supabase.ts CustomerInquiry).
 // Fictional customers/requests — see the DEMO DATA DISCLAIMER at the top of this file.

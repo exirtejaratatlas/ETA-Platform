@@ -154,3 +154,45 @@ export async function getRfqResponses(rfqId: string): Promise<RfqSupplierRespons
   const { data, error } = await supabase.from("rfq_supplier_responses").select("*").eq("rfq_id", rfqId);
   return error || !data || data.length === 0 ? mockRfqResponses[rfqId] ?? [] : data;
 }
+
+// ---------------------------------------------------------------------------
+// Cross-module lookups — wire the approved workflow chain end to end:
+//   Customer Inquiry -> RFQ -> Award -> Purchase Order
+// (ETA-Blueprint ETA-ENT-RFQ-005 stages 1-12; Inquiry sits upstream of RFQ per
+// docs/delivery/CONTENT-SOURCE-MAP.md.)
+// ---------------------------------------------------------------------------
+
+/** RFQ raised from a customer inquiry, matched on `internal_reference`. */
+export async function getRfqByInquiryNumber(inquiryNumber: string): Promise<Rfq | null> {
+  const rfqs = await getRfqs();
+  return rfqs.find((r) => r.internal_reference === inquiryNumber) ?? null;
+}
+
+/** Purchase orders raised from an RFQ award (ETA-ENT-RFQ-005 stage 12). */
+export async function getPurchaseOrdersByRfq(rfqId: string) {
+  const pos = await getPurchaseOrders();
+  return pos.filter((p) => p.rfq_id === rfqId);
+}
+
+/** Every RFQ a supplier was invited to, responded to, or won. */
+export async function getRfqsBySupplier(supplierId: string): Promise<Rfq[]> {
+  const rfqs = await getRfqs();
+  const matched: Rfq[] = [];
+  for (const rfq of rfqs) {
+    if (rfq.invited_supplier_ids.includes(supplierId) || rfq.winning_supplier_id === supplierId) {
+      matched.push(rfq);
+      continue;
+    }
+    const responses = await getRfqResponses(rfq.id);
+    if (responses.some((r) => r.supplier_id === supplierId)) matched.push(rfq);
+  }
+  return matched;
+}
+
+/** Products for which a supplier is primary or alternate source. */
+export async function getProductsBySupplier(supplierId: string): Promise<Product[]> {
+  const products = await getProducts();
+  return products.filter(
+    (p) => p.supplier_id === supplierId || p.alternate_supplier_ids.includes(supplierId)
+  );
+}

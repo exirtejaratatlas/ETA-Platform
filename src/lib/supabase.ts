@@ -111,6 +111,12 @@ export type PurchaseOrder = {
   id: string;
   po_number: string;
   supplier_id: string | null;
+  /**
+   * Originating RFQ, when the PO was raised from an award.
+   * ETA-ENT-RFQ-005 Stage 12 — "Awarded quotations generate Purchase Orders,
+   * Contract References, Supplier Commitments". Null for POs raised outside an RFQ.
+   */
+  rfq_id: string | null;
   status: "draft" | "submitted" | "approved" | "shipped" | "received" | "cancelled";
   total: number;
   currency: string;

@@ -1,140 +1,108 @@
-import { useEffect, useState } from "react";
-import { Sparkles, Plus, Cpu, Zap, Clock, CircleCheck as CheckCircle2, CircleAlert as AlertCircle, Activity } from "lucide-react";
-import type { AiModel, AiTask } from "../lib/supabase";
-import { getAiModels, getAiTasks } from "../lib/data";
+import { Link } from "react-router-dom";
+import {
+  Sparkles, Users, Target, Repeat, Calculator, Clock, ScanText, Workflow,
+} from "lucide-react";
 import { PageHeader } from "../components/ui/PageHeader";
 import { Card, CardHeader, CardBody, CardTitle } from "../components/ui/Card";
 import { Badge } from "../components/ui/Badge";
-import { Button } from "../components/ui/Button";
-import { StatCard } from "../components/ui/StatCard";
-import { Spinner } from "../components/ui/Spinner";
-import { formatRelativeTime } from "../lib/format";
+import { Alert } from "../components/ui/Alert";
 
-const modelStatusTones: Record<string, "success" | "neutral" | "warning"> = {
-  active: "success",
-  inactive: "neutral",
-  training: "warning",
-};
-
-const taskStatusTones: Record<string, "success" | "copper" | "warning" | "error"> = {
-  completed: "success",
-  running: "copper",
-  pending: "warning",
-  failed: "error",
-};
-
-const providerColors: Record<string, string> = {
-  openai: "bg-emerald-50 text-emerald-700",
-  anthropic: "bg-orange-50 text-orange-700",
-  google: "bg-blue-50 text-blue-700",
-};
+const plannedCapabilities = [
+  {
+    icon: Users,
+    title: "Supplier Recommendation",
+    description: "Would suggest approved suppliers for an RFQ line.",
+    docId: "ETA-ENT-RFQ-001",
+  },
+  {
+    icon: Target,
+    title: "Technical Matching",
+    description: "Would match customer specifications to catalogue products.",
+    docId: "ETA-ENT-PRODUCT-001",
+  },
+  {
+    icon: Repeat,
+    title: "Alternative Products",
+    description: "Would propose interchangeable items when a part is obsolete.",
+    docId: "ETA-ENT-PRODUCT-001",
+  },
+  {
+    icon: Calculator,
+    title: "Cost Estimation",
+    description: "Would estimate budgetary pricing before quotations arrive.",
+    docId: "ETA-ENT-RFQ-001",
+  },
+  {
+    icon: Clock,
+    title: "Lead Time Prediction",
+    description: "Would predict realistic delivery windows from history.",
+    docId: "ETA-ENT-RFQ-001",
+  },
+  {
+    icon: ScanText,
+    title: "Document Extraction",
+    description: "Would read datasheets and certificates into structured fields.",
+    docId: "ETA-ENT-PRODUCT-002",
+  },
+];
 
 export default function AiPlatform() {
-  const [loading, setLoading] = useState(true);
-  const [models, setModels] = useState<AiModel[]>([]);
-  const [tasks, setTasks] = useState<AiTask[]>([]);
-
-  useEffect(() => {
-    async function load() {
-      const [m, t] = await Promise.all([getAiModels(), getAiTasks(50)]);
-      setModels(m);
-      setTasks(t);
-      setLoading(false);
-    }
-    load();
-  }, []);
-
-  if (loading) {
-    return <div className="flex h-full items-center justify-center py-20"><Spinner size="lg" /></div>;
-  }
-
-  const activeModels = models.filter((m) => m.status === "active").length;
-  const completedTasks = tasks.filter((t) => t.status === "completed").length;
-  const runningTasks = tasks.filter((t) => t.status === "running").length;
-  const pendingTasks = tasks.filter((t) => t.status === "pending").length;
-
   return (
     <div>
       <PageHeader
         title="AI Platform"
-        description="Manage AI models and monitor intelligent processing tasks"
+        description="Planned AI capability — not yet implemented"
         icon={<Sparkles size={20} />}
-        actions={<Button size="sm"><Plus size={15} /> Register Model</Button>}
       />
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
-        <StatCard label="Active Models" value={activeModels} icon={<Cpu size={20} />} tone="info" />
-        <StatCard label="Completed Tasks" value={completedTasks} icon={<CheckCircle2 size={20} />} tone="success" />
-        <StatCard label="Running" value={runningTasks} icon={<Activity size={20} />} tone="copper" />
-        <StatCard label="Pending" value={pendingTasks} icon={<Clock size={20} />} tone="warning" />
-      </div>
+      <Alert tone="info" title="Not yet implemented" className="mb-6">
+        No AI model is integrated on this page and nothing here is running. AI capability requires
+        an approved Change Request per decision D4 and IMPLEMENTATION-GATE.md before implementation begins.
+      </Alert>
 
-      {/* AI Models */}
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Registered AI Models</CardTitle>
+          <CardTitle>Planned Capabilities</CardTitle>
         </CardHeader>
         <CardBody>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {models.map((model, i) => (
+            {plannedCapabilities.map((capability) => (
               <div
-                key={model.id}
-                className="rounded-xl border border-surface-200 p-4 hover:border-surface-300 hover:shadow-soft transition-all animate-fade-in-up"
-                style={{ animationDelay: `${i * 50}ms` } as React.CSSProperties}
+                key={capability.title}
+                className="rounded-xl border border-surface-200 p-4"
               >
                 <div className="flex items-start justify-between mb-3">
-                  <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${providerColors[model.provider] ?? "bg-surface-100 text-surface-600"}`}>
-                    {model.status === "training" ? <Zap size={18} className="animate-pulse-soft" /> : <Cpu size={18} />}
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-surface-100 text-surface-600">
+                    <capability.icon size={18} />
                   </div>
-                  <Badge tone={modelStatusTones[model.status]} dot>{model.status}</Badge>
+                  <Badge tone="neutral">Not started</Badge>
                 </div>
-                <p className="text-sm font-semibold text-surface-900">{model.name}</p>
-                <p className="text-xs text-surface-500 mt-0.5">{model.provider} · {model.model_type}</p>
-                {model.endpoint && (
-                  <p className="text-xs text-surface-400 mt-2 truncate">{model.endpoint}</p>
-                )}
+                <p className="text-sm font-semibold text-surface-900">{capability.title}</p>
+                <p className="text-xs text-surface-500 mt-0.5">{capability.description}</p>
+                <p className="text-xs text-surface-400 mt-2">{capability.docId}</p>
               </div>
             ))}
           </div>
         </CardBody>
       </Card>
 
-      {/* Task History */}
       <Card>
         <CardHeader>
-          <CardTitle>Task History</CardTitle>
+          <CardTitle>What is available today</CardTitle>
         </CardHeader>
         <CardBody>
-          <div className="space-y-2">
-            {tasks.map((task, i) => (
-              <div
-                key={task.id}
-                className="flex items-start gap-3 py-3 border-b border-surface-100 last:border-0 animate-fade-in"
-                style={{ animationDelay: `${i * 30}ms` }}
-              >
-                <div className={`flex h-9 w-9 items-center justify-center rounded-lg shrink-0 ${
-                  task.status === "completed" ? "bg-success/10 text-success-dark" :
-                  task.status === "running" ? "bg-copper-50 text-copper-600" :
-                  task.status === "pending" ? "bg-warning/10 text-warning-dark" :
-                  "bg-error/10 text-error-dark"
-                }`}>
-                  {task.status === "completed" ? <CheckCircle2 size={16} /> :
-                   task.status === "running" ? <Activity size={16} className="animate-pulse-soft" /> :
-                   task.status === "pending" ? <Clock size={16} /> :
-                   <AlertCircle size={16} />}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-medium text-surface-900 capitalize">{task.task_type.replace(/_/g, " ")}</p>
-                    <Badge tone={taskStatusTones[task.status]} dot>{task.status}</Badge>
-                  </div>
-                  {task.input_summary && <p className="text-xs text-surface-500 mt-0.5">{task.input_summary}</p>}
-                  {task.output_summary && <p className="text-xs text-surface-600 mt-1 bg-surface-50 rounded-lg px-2 py-1">{task.output_summary}</p>}
-                  <p className="text-xs text-surface-400 mt-1">{formatRelativeTime(task.created_at)}</p>
-                </div>
-              </div>
-            ))}
+          <div className="flex items-start gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-surface-100 text-surface-600 shrink-0">
+              <Workflow size={16} />
+            </div>
+            <p className="text-sm text-surface-600">
+              RFQ workflow governance is enforced today by a deterministic, rules-based{" "}
+              <Link to="/rfq" className="text-copper-600 font-medium hover:underline">
+                Workflow Guide
+              </Link>{" "}
+              that evaluates the approved business rules in ETA-ENT-RFQ-004. It is not an AI
+              feature: no model call, no score, no ranking, no recommendation.
+            </p>
           </div>
         </CardBody>
       </Card>

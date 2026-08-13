@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { Inbox, Plus } from "lucide-react";
-import type { CustomerInquiry, InquiryStatus } from "../../lib/supabase";
-import { getCustomerInquiries } from "../../lib/data";
+import { Link } from "react-router-dom";
+import { Inbox, Plus, FileText } from "lucide-react";
+import type { CustomerInquiry, InquiryStatus, Rfq, RfqStatus } from "../../lib/supabase";
+import { getCustomerInquiries, getRfqs } from "../../lib/data";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { Card } from "../../components/ui/Card";
 import { Badge } from "../../components/ui/Badge";
@@ -37,14 +38,36 @@ const stageTones: Record<InquiryStatus, "neutral" | "info" | "warning" | "copper
   lost: "error",
 };
 
+// Same tone map as src/pages/rfq/RfqList.tsx statusTone — reused so an RFQ chip
+// reads the same way here as it does on the RFQ Workflow board.
+const rfqStatusTone: Record<RfqStatus, "success" | "warning" | "error" | "neutral" | "info" | "copper"> = {
+  Draft: "neutral",
+  "Engineering Review": "warning",
+  "Procurement Review": "warning",
+  Approved: "info",
+  Sent: "info",
+  "Supplier Responding": "copper",
+  "Quotation Received": "copper",
+  Evaluation: "copper",
+  Awarded: "success",
+  Closed: "neutral",
+  Cancelled: "error",
+};
+
 export default function Inquiries() {
   const [loading, setLoading] = useState(true);
   const [inquiries, setInquiries] = useState<CustomerInquiry[]>([]);
+  const [rfqByInquiry, setRfqByInquiry] = useState<Map<string, Rfq>>(new Map());
 
   useEffect(() => {
     async function load() {
-      const data = await getCustomerInquiries();
+      const [data, rfqs] = await Promise.all([getCustomerInquiries(), getRfqs()]);
       setInquiries(data);
+      const byInquiry = new Map<string, Rfq>();
+      rfqs.forEach((r) => {
+        if (r.internal_reference) byInquiry.set(r.internal_reference, r);
+      });
+      setRfqByInquiry(byInquiry);
       setLoading(false);
     }
     load();
@@ -58,6 +81,7 @@ export default function Inquiries() {
   const won = inquiries.filter((i) => i.status === "won");
   const lost = inquiries.filter((i) => i.status === "lost");
   const winRate = won.length + lost.length > 0 ? Math.round((won.length / (won.length + lost.length)) * 100) : 0;
+  const convertedToRfq = inquiries.filter((i) => rfqByInquiry.has(i.inquiry_number)).length;
 
   return (
     <div>
@@ -70,7 +94,7 @@ export default function Inquiries() {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
         <StatCard label="Open Inquiries" value={openInquiries.length} icon={<Inbox size={20} />} tone="copper" />
-        <StatCard label="In Technical Review" value={inquiries.filter((i) => i.status === "technical_review").length} icon={<Inbox size={20} />} tone="info" />
+        <StatCard label="Converted to RFQ" value={convertedToRfq} icon={<FileText size={20} />} tone="info" />
         <StatCard label="Won" value={won.length} icon={<Inbox size={20} />} tone="success" />
         <StatCard label="Win Rate" value={`${winRate}%`} icon={<Inbox size={20} />} tone="neutral" />
       </div>
@@ -85,25 +109,39 @@ export default function Inquiries() {
                 <span className="text-xs text-surface-400">{stageInquiries.length}</span>
               </div>
               <div className="space-y-2 min-h-[100px]">
-                {stageInquiries.map((inq, i) => (
-                  <Card
-                    key={inq.id}
-                    hover
-                    className="p-3 animate-fade-in-up cursor-pointer"
-                    style={{ animationDelay: `${i * 50}ms` } as React.CSSProperties}
-                  >
-                    <p className="text-[11px] font-medium text-surface-400 tracking-wide">{inq.inquiry_number}</p>
-                    <p className="text-sm font-medium text-surface-900 mt-0.5">{inq.customer_name}</p>
-                    <p className="text-xs text-surface-500 mt-1">{inq.product_equipment}</p>
-                    <p className="text-xs text-surface-400 mt-1.5 line-clamp-2">{inq.technical_specification}</p>
-                    <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-surface-100">
-                      <span className="text-xs text-surface-500">{inq.quantity}</span>
-                      <span className="text-xs text-surface-400">
-                        {inq.required_delivery_date ? formatDate(inq.required_delivery_date) : "—"}
-                      </span>
-                    </div>
-                  </Card>
-                ))}
+                {stageInquiries.map((inq, i) => {
+                  const rfq = rfqByInquiry.get(inq.inquiry_number);
+                  return (
+                    <Card
+                      key={inq.id}
+                      hover
+                      className="p-3 animate-fade-in-up cursor-pointer"
+                      style={{ animationDelay: `${i * 50}ms` } as React.CSSProperties}
+                    >
+                      <p className="text-[11px] font-medium text-surface-400 tracking-wide">{inq.inquiry_number}</p>
+                      <p className="text-sm font-medium text-surface-900 mt-0.5">{inq.customer_name}</p>
+                      <p className="text-xs text-surface-500 mt-1">{inq.product_equipment}</p>
+                      <p className="text-xs text-surface-400 mt-1.5 line-clamp-2">{inq.technical_specification}</p>
+                      <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-surface-100">
+                        <span className="text-xs text-surface-500">{inq.quantity}</span>
+                        <span className="text-xs text-surface-400">
+                          {inq.required_delivery_date ? formatDate(inq.required_delivery_date) : "—"}
+                        </span>
+                      </div>
+                      {rfq && (
+                        <Link
+                          to={`/rfq/${rfq.id}`}
+                          className="flex items-center justify-between mt-2 pt-2 border-t border-surface-100"
+                        >
+                          <span className="font-mono text-xs text-surface-600">{rfq.rfq_number}</span>
+                          <Badge tone={rfqStatusTone[rfq.rfq_status]} dot>
+                            {rfq.rfq_status}
+                          </Badge>
+                        </Link>
+                      )}
+                    </Card>
+                  );
+                })}
                 {stageInquiries.length === 0 && (
                   <div className="rounded-xl border border-dashed border-surface-200 py-8 text-center">
                     <p className="text-xs text-surface-300">Empty</p>

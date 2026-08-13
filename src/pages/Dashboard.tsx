@@ -1,15 +1,40 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Building2, TrendingUp, Package, ShoppingBag, Sparkles, ArrowUpRight, Clock, CircleCheck as CheckCircle2, CircleAlert as AlertCircle } from "lucide-react";
-import type { Company, Deal, PurchaseOrder, Supplier, AiTask } from "../lib/supabase";
-import { getCompanies, getDeals, getPurchaseOrders, getSuppliers, getAiTasks } from "../lib/data";
+import { Building2, Package, ShoppingBag, ArrowUpRight, FileText, Gavel, CircleCheck } from "lucide-react";
+import type { Company, Deal, PurchaseOrder, Supplier, Rfq } from "../lib/supabase";
+import { getCompanies, getDeals, getPurchaseOrders, getSuppliers, getRfqs, getRfqLines, getRfqResponses } from "../lib/data";
+import { evaluateRfqRules, ruleSummary } from "../lib/rfqLifecycle";
 import { PageHeader } from "../components/ui/PageHeader";
 import { StatCard } from "../components/ui/StatCard";
 import { Card, CardHeader, CardBody, CardTitle } from "../components/ui/Card";
 import { Badge } from "../components/ui/Badge";
 import { Progress } from "../components/ui/Progress";
 import { Spinner } from "../components/ui/Spinner";
-import { formatCompactCurrency, formatCurrency, formatRelativeTime } from "../lib/format";
+import { EmptyState } from "../components/ui/EmptyState";
+import { formatCompactCurrency, formatCurrency } from "../lib/format";
+
+const OPEN_RFQ_STATUSES = [
+  "Draft",
+  "Engineering Review",
+  "Procurement Review",
+  "Approved",
+  "Sent",
+  "Supplier Responding",
+  "Quotation Received",
+  "Evaluation",
+];
+
+type AttentionRfq = {
+  rfq: Rfq;
+  blockers: number;
+  daysLeft: number | null;
+};
+
+function daysUntil(iso: string | null): number | null {
+  if (!iso) return null;
+  const diff = new Date(iso).getTime() - Date.now();
+  return Math.ceil(diff / 86_400_000);
+}
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
@@ -17,22 +42,34 @@ export default function Dashboard() {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [pos, setPos] = useState<PurchaseOrder[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
-  const [aiTasks, setAiTasks] = useState<AiTask[]>([]);
+  const [rfqs, setRfqs] = useState<Rfq[]>([]);
+  const [attentionRfqs, setAttentionRfqs] = useState<AttentionRfq[]>([]);
 
   useEffect(() => {
     async function load() {
-      const [c, d, p, s, t] = await Promise.all([
+      const [c, d, p, s, r] = await Promise.all([
         getCompanies(),
         getDeals(),
         getPurchaseOrders(),
         getSuppliers(),
-        getAiTasks(5),
+        getRfqs(),
       ]);
       setCompanies(c);
       setDeals(d);
       setPos(p);
       setSuppliers(s);
-      setAiTasks(t);
+      setRfqs(r);
+
+      const openRfqs = r.filter((rfq) => OPEN_RFQ_STATUSES.includes(rfq.rfq_status));
+      const withRules = await Promise.all(
+        openRfqs.map(async (rfq) => {
+          const [lines, responses] = await Promise.all([getRfqLines(rfq.id), getRfqResponses(rfq.id)]);
+          const results = evaluateRfqRules(rfq, lines, responses);
+          const summary = ruleSummary(results);
+          return { rfq, blockers: summary.blockers, daysLeft: daysUntil(rfq.submission_deadline) };
+        })
+      );
+      setAttentionRfqs(withRules);
       setLoading(false);
     }
     load();
@@ -52,7 +89,18 @@ export default function Dashboard() {
   const totalRevenue = wonDeals.reduce((sum, d) => sum + d.value, 0);
   const openPOs = pos.filter((p) => p.status !== "received" && p.status !== "cancelled");
   const activeSuppliers = suppliers.filter((s) => s.status === "active");
-  const runningTasks = aiTasks.filter((t) => t.status === "running" || t.status === "pending");
+  const openRfqs = rfqs.filter((r) => OPEN_RFQ_STATUSES.includes(r.rfq_status));
+  const openRfqBudget = openRfqs.reduce((sum, r) => sum + (r.budget_amount ?? 0), 0);
+
+  const needsAttention = attentionRfqs
+    .filter((a) => a.blockers > 0 || (a.daysLeft !== null && a.daysLeft >= 0 && a.daysLeft <= 14))
+    .sort((a, b) => {
+      if (a.blockers !== b.blockers) return b.blockers - a.blockers;
+      const da = a.daysLeft ?? Infinity;
+      const db = b.daysLeft ?? Infinity;
+      return da - db;
+    })
+    .slice(0, 5);
 
   const stageColors: Record<string, "copper" | "info" | "success" | "warning" | "error" | "neutral"> = {
     lead: "neutral",
@@ -74,16 +122,15 @@ export default function Dashboard() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
         <StatCard
-          label="Total Pipeline Value"
-          value={formatCompactCurrency(totalPipeline)}
-          icon={<TrendingUp size={20} />}
-          trend={{ value: "+12.5%", positive: true }}
+          label="Open RFQs"
+          value={openRfqs.length}
+          icon={<FileText size={20} />}
           tone="copper"
         />
         <StatCard
-          label="Active Companies"
-          value={companies.length}
-          icon={<Building2 size={20} />}
+          label="Budgeted value, open RFQs"
+          value={formatCompactCurrency(openRfqBudget)}
+          icon={<Gavel size={20} />}
           tone="info"
         />
         <StatCard
@@ -132,9 +179,9 @@ export default function Dashboard() {
                         size="sm"
                       />
                     </div>
-                    <div className="w-24 text-right">
+                    <div className="w-24 text-end">
                       <span className="text-sm font-medium text-surface-700">{formatCompactCurrency(value)}</span>
-                      <span className="text-xs text-surface-400 ml-1">({stageDeals.length})</span>
+                      <span className="text-xs text-surface-400 ms-1">({stageDeals.length})</span>
                     </div>
                   </div>
                 );
@@ -153,7 +200,7 @@ export default function Dashboard() {
                 <p className="text-xs text-surface-500 uppercase tracking-wide font-medium">Won Deals Revenue</p>
                 <p className="text-3xl font-semibold text-surface-900 mt-1">{formatCurrency(totalRevenue)}</p>
                 <div className="flex items-center gap-1.5 mt-1">
-                  <CheckCircle2 size={14} className="text-success" />
+                  <CircleCheck size={14} className="text-success" />
                   <span className="text-xs text-surface-500">{wonDeals.length} deals closed</span>
                 </div>
               </div>
@@ -172,13 +219,17 @@ export default function Dashboard() {
                     {formatCompactCurrency(activeDeals.length > 0 ? totalPipeline / activeDeals.length : 0)}
                   </span>
                 </div>
+                <div className="flex justify-between text-sm mt-2">
+                  <span className="text-surface-500">Active Companies</span>
+                  <span className="font-medium text-surface-900">{companies.length}</span>
+                </div>
               </div>
             </div>
           </CardBody>
         </Card>
       </div>
 
-      {/* Recent POs + AI Tasks */}
+      {/* Recent POs + RFQs Requiring Attention */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
           <CardHeader>
@@ -222,49 +273,41 @@ export default function Dashboard() {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle>AI Task Activity</CardTitle>
-              <Link to="/ai-platform" className="text-xs font-medium text-copper-600 hover:text-copper-700 flex items-center gap-1">
+              <CardTitle>RFQ Requiring Attention</CardTitle>
+              <Link to="/rfq" className="text-xs font-medium text-copper-600 hover:text-copper-700 flex items-center gap-1">
                 View all <ArrowUpRight size={12} />
               </Link>
             </div>
           </CardHeader>
           <CardBody>
-            <div className="space-y-2">
-              {aiTasks.map((task) => (
-                <div key={task.id} className="flex items-center justify-between py-2 border-b border-surface-100 last:border-0">
-                  <div className="flex items-center gap-3">
-                    <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${
-                      task.status === "completed" ? "bg-success/10 text-success-dark" :
-                      task.status === "running" ? "bg-copper-50 text-copper-600" :
-                      task.status === "pending" ? "bg-warning/10 text-warning-dark" :
-                      "bg-error/10 text-error-dark"
-                    }`}>
-                      {task.status === "completed" ? <CheckCircle2 size={16} /> :
-                       task.status === "running" ? <Sparkles size={16} className="animate-pulse-soft" /> :
-                       task.status === "pending" ? <Clock size={16} /> :
-                       <AlertCircle size={16} />}
+            {needsAttention.length === 0 ? (
+              <EmptyState
+                icon={<CircleCheck size={20} />}
+                title="Nothing blocked"
+                description="No RFQ has an open blocker or a deadline inside 14 days."
+              />
+            ) : (
+              <div className="space-y-1">
+                {needsAttention.map(({ rfq, blockers, daysLeft }) => (
+                  <Link
+                    key={rfq.id}
+                    to={`/rfq/${rfq.id}`}
+                    className="flex items-center justify-between gap-3 rounded-lg py-2 px-2 -mx-2 hover:bg-surface-50"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-mono text-surface-400">{rfq.rfq_number}</p>
+                      <p className="text-sm font-medium text-surface-900 truncate">{rfq.rfq_title}</p>
+                      <p className="text-xs text-surface-400 truncate">{rfq.customer_name}</p>
                     </div>
-                    <div>
-                      <p className="text-sm font-medium text-surface-900 capitalize">{task.task_type.replace(/_/g, " ")}</p>
-                      <p className="text-xs text-surface-400">{formatRelativeTime(task.created_at)}</p>
-                    </div>
-                  </div>
-                  <Badge tone={
-                    task.status === "completed" ? "success" :
-                    task.status === "running" ? "copper" :
-                    task.status === "pending" ? "warning" : "error"
-                  }>
-                    {task.status}
-                  </Badge>
-                </div>
-              ))}
-              {runningTasks.length > 0 && (
-                <div className="flex items-center gap-2 pt-2 text-xs text-copper-600">
-                  <Sparkles size={12} className="animate-pulse-soft" />
-                  {runningTasks.length} task{runningTasks.length > 1 ? "s" : ""} in progress
-                </div>
-              )}
-            </div>
+                    {blockers > 0 ? (
+                      <Badge tone="error">{blockers} blocker{blockers === 1 ? "" : "s"}</Badge>
+                    ) : (
+                      <Badge tone="warning">{daysLeft}d left</Badge>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            )}
           </CardBody>
         </Card>
       </div>

@@ -252,6 +252,26 @@ Milestone 2026-08-13 (see docs/delivery/SESSION-HANDOFF-MVP-PRODUCT-RFQ.md):
   and ETA-Platform missing from the Claude Project's synced GitHub sources.
 - Next step: close those decisions in ETA-Blueprint before opening Phase 6.1.
 
+Milestone 2026-08-13b — MVP workflow chain wired end to end:
+- Dashboard now operational, not decorative: KPI tiles are Open RFQs / budgeted value of
+  open RFQs / open POs / active suppliers, and the fabricated "AI Task Activity" panel is
+  replaced by "RFQ Requiring Attention" (RFQs with open blocker rules or a deadline inside
+  14 days, ranked by deterministic ETA-ENT-RFQ-004 evaluation — not AI).
+- Chain Customer Inquiry -> RFQ -> Award -> Purchase Order is now navigable in the UI.
+  PurchaseOrder gained `rfq_id` (ETA-ENT-RFQ-005 stage 12: awarded quotations generate POs);
+  Inquiries link to their RFQ via `internal_reference`.
+- Supplier profile gained "Products Supplied" and "RFQ Participation". Facts and links only —
+  no supplier scoring, ranking or performance rating (still out of scope).
+- Data-honesty correction (closes PHASE6-PLATFORM-EXECUTION-STRATEGY.md §2.4, answers §6 Q16):
+  `mockAiModels` and `mockAiTasks` are now empty. They previously advertised live
+  anthropic/openai/google integrations and completed supplier-scoring / price-analysis /
+  risk-assessment runs — none existed. `/ai-platform` is now a future-vision capability shell
+  stating plainly that nothing is implemented and that AI needs a Change Request (D4).
+- Decisions respected: D4, D6, IMPLEMENTATION-GATE, CODING-RULES. No architecture change, no
+  new entity, no new component, no new dependency, no AI implementation, migration still not applied.
+- Validation: typecheck clean, oxlint clean (3 pre-existing warnings only), build succeeds,
+  19 routes + 4 RTL sweeps pass headless Chromium with zero console/page errors and 0px overflow.
+
 
 Next Priority:
 

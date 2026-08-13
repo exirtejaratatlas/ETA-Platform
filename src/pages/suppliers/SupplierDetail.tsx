@@ -13,13 +13,37 @@ import {
   ShieldQuestion,
   BadgeCheck,
   CircleDot,
+  Boxes,
+  FileText,
 } from "lucide-react";
-import { getSupplierById, getSupplierRelationshipHistory } from "../../lib/data";
-import type { Supplier, SupplierRelationshipEvent } from "../../lib/supabase";
+import {
+  getSupplierById,
+  getSupplierRelationshipHistory,
+  getProductsBySupplier,
+  getRfqsBySupplier,
+} from "../../lib/data";
+import type { Supplier, SupplierRelationshipEvent, Product, Rfq, RfqStatus } from "../../lib/supabase";
 import { Card, CardHeader, CardBody, CardTitle } from "../../components/ui/Card";
 import { Badge } from "../../components/ui/Badge";
 import { Spinner } from "../../components/ui/Spinner";
+import { EmptyState } from "../../components/ui/EmptyState";
 import { formatDate } from "../../lib/format";
+
+// Status tone map copied from src/pages/rfq/RfqList.tsx to keep RFQ status
+// colours consistent across the app.
+const statusTone: Record<RfqStatus, "success" | "warning" | "error" | "neutral" | "info" | "copper"> = {
+  Draft: "neutral",
+  "Engineering Review": "warning",
+  "Procurement Review": "warning",
+  Approved: "info",
+  Sent: "info",
+  "Supplier Responding": "copper",
+  "Quotation Received": "copper",
+  Evaluation: "copper",
+  Awarded: "success",
+  Closed: "neutral",
+  Cancelled: "error",
+};
 
 const lifecycleTone: Record<string, "success" | "warning" | "error" | "neutral" | "info"> = {
   Draft: "neutral",
@@ -66,13 +90,22 @@ export default function SupplierDetail() {
   const [loading, setLoading] = useState(true);
   const [supplier, setSupplier] = useState<Supplier | null>(null);
   const [history, setHistory] = useState<SupplierRelationshipEvent[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [rfqs, setRfqs] = useState<Rfq[]>([]);
 
   useEffect(() => {
     async function load() {
       if (!id) return;
-      const [s, h] = await Promise.all([getSupplierById(id), getSupplierRelationshipHistory(id)]);
+      const [s, h, p, r] = await Promise.all([
+        getSupplierById(id),
+        getSupplierRelationshipHistory(id),
+        getProductsBySupplier(id),
+        getRfqsBySupplier(id),
+      ]);
       setSupplier(s);
       setHistory(h);
+      setProducts(p);
+      setRfqs(r);
       setLoading(false);
     }
     load();
@@ -238,6 +271,75 @@ export default function SupplierDetail() {
           )}
         </CardBody>
       </Card>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6">
+        <Card>
+          <CardHeader><CardTitle>Products Supplied</CardTitle></CardHeader>
+          <CardBody className={products.length === 0 ? "" : "p-0"}>
+            {products.length === 0 ? (
+              <EmptyState
+                icon={<Boxes size={20} />}
+                title="No products sourced"
+                description="No catalogue item lists this supplier as a source."
+              />
+            ) : (
+              <div className="divide-y divide-surface-100">
+                {products.map((p) => (
+                  <Link
+                    key={p.id}
+                    to={`/products/${p.id}`}
+                    className="flex items-center justify-between gap-3 px-6 py-3 rounded-lg hover:bg-surface-50"
+                  >
+                    <div className="min-w-0">
+                      <p className="font-mono text-xs text-surface-400">{p.product_code}</p>
+                      <p className="text-sm font-medium text-surface-900 truncate">{p.product_name}</p>
+                      <p className="text-xs text-surface-500">{p.category}</p>
+                    </div>
+                    {p.supplier_id === id ? (
+                      <Badge tone="copper" className="shrink-0">Primary</Badge>
+                    ) : (
+                      <Badge tone="neutral" className="shrink-0">Alternate</Badge>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardHeader><CardTitle>RFQ Participation</CardTitle></CardHeader>
+          <CardBody className={rfqs.length === 0 ? "" : "p-0"}>
+            {rfqs.length === 0 ? (
+              <EmptyState
+                icon={<FileText size={20} />}
+                title="No RFQ activity"
+                description="This supplier has not been invited to an RFQ yet."
+              />
+            ) : (
+              <div className="divide-y divide-surface-100">
+                {rfqs.map((r) => (
+                  <Link
+                    key={r.id}
+                    to={`/rfq/${r.id}`}
+                    className="flex items-center justify-between gap-3 px-6 py-3 rounded-lg hover:bg-surface-50"
+                  >
+                    <div className="min-w-0">
+                      <p className="font-mono text-xs text-surface-400">{r.rfq_number}</p>
+                      <p className="text-sm font-medium text-surface-900 truncate">{r.rfq_title}</p>
+                      <p className="text-xs text-surface-500">{r.customer_name}</p>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <Badge tone={statusTone[r.rfq_status]}>{r.rfq_status}</Badge>
+                      {r.winning_supplier_id === id && <Badge tone="success">Awarded</Badge>}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </CardBody>
+        </Card>
+      </div>
     </div>
   );
 }
