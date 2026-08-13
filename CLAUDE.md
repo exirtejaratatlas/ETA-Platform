@@ -236,6 +236,21 @@ Implemented:
 - Supplier List
 - Supplier Detail
 - Mock Data Layer
+- Product Management (List + Detail) — implements Approved ETA-ENT-PRODUCT-001/002/004/005
+- RFQ Workflow (List + Detail, 14-stage lifecycle tracker, quotation comparison)
+  — implements Approved ETA-ENT-RFQ-001/002/004/005
+- RFQ Workflow Guide — deterministic business-rule evaluation against ETA-ENT-RFQ-004.
+  NOT an AI feature: no model call, no score, no ranking, no recommendation.
+
+Milestone 2026-08-13 (see docs/delivery/SESSION-HANDOFF-MVP-PRODUCT-RFQ.md):
+- Decisions respected: CR-001, D1-D6; IMPLEMENTATION-GATE; CODING-RULES.
+- AI automation NOT implemented — still forbidden without a Change Request (D4, D6).
+- Product/RFQ Supabase migration authored but NOT applied — database work remains gated.
+- Open Decisions Required raised: Product status domain conflict (ETA-ENT-PRODUCT-001 vs
+  -005), RFQ status domain conflict (ETA-ENT-RFQ-001 vs -005), undefined enum domains
+  (criticality, priority, technical_risk_level), Supabase provisioning, AI assistant scope,
+  and ETA-Platform missing from the Claude Project's synced GitHub sources.
+- Next step: close those decisions in ETA-Blueprint before opening Phase 6.1.
 
 
 Next Priority:

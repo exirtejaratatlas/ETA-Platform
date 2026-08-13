@@ -11,6 +11,8 @@ import {
   Sparkles,
   X,
   Inbox,
+  Boxes,
+  FileText,
 } from "lucide-react";
 
 const navItems = [
@@ -19,6 +21,8 @@ const navItems = [
   { to: "/crm/contacts", icon: Users, label: "Contacts" },
   { to: "/crm/inquiries", icon: Inbox, label: "Inquiries" },
   { to: "/crm/deals", icon: TrendingUp, label: "Deals" },
+  { to: "/rfq", icon: FileText, label: "RFQ Workflow" },
+  { to: "/products", icon: Boxes, label: "Products" },
   { to: "/procurement/orders", icon: ShoppingBag, label: "Purchase Orders" },
   { to: "/suppliers", icon: Package, label: "Suppliers" },
   { to: "/supplier-portal", icon: Globe, label: "Supplier Portal" },

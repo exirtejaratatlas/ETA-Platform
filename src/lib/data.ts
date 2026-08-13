@@ -1,4 +1,13 @@
-import { supabase, isSupabaseConfigured, type Supplier, type SupplierRelationshipEvent } from "./supabase";
+import {
+  supabase,
+  isSupabaseConfigured,
+  type Product,
+  type Rfq,
+  type RfqLine,
+  type RfqSupplierResponse,
+  type Supplier,
+  type SupplierRelationshipEvent,
+} from "./supabase";
 import {
   mockAiModels,
   mockAiTasks,
@@ -7,6 +16,10 @@ import {
   mockCustomerInquiries,
   mockDeals,
   mockPoItems,
+  mockProducts,
+  mockRfqLines,
+  mockRfqResponses,
+  mockRfqs,
   mockPurchaseOrders,
   mockSupplierProfiles,
   mockSupplierQuotes,
@@ -95,4 +108,49 @@ export async function getCustomerInquiries() {
   if (!isSupabaseConfigured) return mockCustomerInquiries;
   const { data, error } = await supabase.from("customer_inquiries").select("*").order("created_at", { ascending: false });
   return error || !data ? mockCustomerInquiries : data;
+}
+
+// ---------------------------------------------------------------------------
+// Product master data — ETA-Blueprint ETA-ENT-PRODUCT-001/002 (Approved).
+// Same backend-optional pattern as everything above: the `products` table is
+// defined in supabase/migrations/ but not confirmed applied to any environment,
+// so these fall back to mock data.
+// ---------------------------------------------------------------------------
+
+export async function getProducts(): Promise<Product[]> {
+  if (!isSupabaseConfigured) return mockProducts;
+  const { data, error } = await supabase.from("products").select("*").order("product_code");
+  return error || !data || data.length === 0 ? mockProducts : data;
+}
+
+export async function getProductById(id: string): Promise<Product | null> {
+  const products = await getProducts();
+  return products.find((p) => p.id === id) ?? null;
+}
+
+// ---------------------------------------------------------------------------
+// RFQ — ETA-Blueprint ETA-ENT-RFQ-001/002 (Approved).
+// ---------------------------------------------------------------------------
+
+export async function getRfqs(): Promise<Rfq[]> {
+  if (!isSupabaseConfigured) return mockRfqs;
+  const { data, error } = await supabase.from("rfqs").select("*").order("rfq_date", { ascending: false });
+  return error || !data || data.length === 0 ? mockRfqs : data;
+}
+
+export async function getRfqById(id: string): Promise<Rfq | null> {
+  const rfqs = await getRfqs();
+  return rfqs.find((r) => r.id === id) ?? null;
+}
+
+export async function getRfqLines(rfqId: string): Promise<RfqLine[]> {
+  if (!isSupabaseConfigured) return mockRfqLines[rfqId] ?? [];
+  const { data, error } = await supabase.from("rfq_lines").select("*").eq("rfq_id", rfqId).order("line_number");
+  return error || !data || data.length === 0 ? mockRfqLines[rfqId] ?? [] : data;
+}
+
+export async function getRfqResponses(rfqId: string): Promise<RfqSupplierResponse[]> {
+  if (!isSupabaseConfigured) return mockRfqResponses[rfqId] ?? [];
+  const { data, error } = await supabase.from("rfq_supplier_responses").select("*").eq("rfq_id", rfqId);
+  return error || !data || data.length === 0 ? mockRfqResponses[rfqId] ?? [] : data;
 }

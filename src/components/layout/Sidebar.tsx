@@ -11,6 +11,8 @@ import {
   Settings,
   ArrowLeft,
   Inbox,
+  Boxes,
+  FileText,
 } from "lucide-react";
 
 const navSections = [
@@ -32,6 +34,8 @@ const navSections = [
   {
     label: "Procurement",
     items: [
+      { to: "/rfq", icon: FileText, label: "RFQ Workflow" },
+      { to: "/products", icon: Boxes, label: "Products" },
       { to: "/procurement/orders", icon: ShoppingBag, label: "Purchase Orders" },
       { to: "/suppliers", icon: Package, label: "Suppliers" },
     ],

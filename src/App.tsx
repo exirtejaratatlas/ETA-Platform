@@ -9,6 +9,10 @@ import Deals from "./pages/crm/Deals";
 import Inquiries from "./pages/crm/Inquiries";
 import PurchaseOrders from "./pages/procurement/PurchaseOrders";
 import SupplierList from "./pages/suppliers/SupplierList";
+import ProductList from "./pages/products/ProductList";
+import ProductDetail from "./pages/products/ProductDetail";
+import RfqList from "./pages/rfq/RfqList";
+import RfqDetail from "./pages/rfq/RfqDetail";
 import SupplierDetail from "./pages/suppliers/SupplierDetail";
 import SupplierPortal from "./pages/SupplierPortal";
 import AiPlatform from "./pages/AiPlatform";
@@ -56,6 +60,14 @@ export default function App() {
         <Route path="/crm/contacts" element={<Contacts />} />
         <Route path="/crm/deals" element={<Deals />} />
         <Route path="/crm/inquiries" element={<Inquiries />} />
+        {/* Procurement — RFQ implements ETA-Blueprint ETA-ENT-RFQ-001 (Approved);
+            Products implements ETA-ENT-PRODUCT-001 (Approved). */}
+        <Route path="/rfq" element={<RfqList />} />
+        <Route path="/rfq/:id" element={<RfqDetail />} />
+        <Route path="/products" element={<ProductList />} />
+        <Route path="/products/:id" element={<ProductDetail />} />
+        <Route path="/procurement/rfq" element={<Navigate to="/rfq" replace />} />
+        <Route path="/procurement/products" element={<Navigate to="/products" replace />} />
         <Route path="/procurement/orders" element={<PurchaseOrders />} />
         <Route path="/suppliers" element={<SupplierList />} />
         <Route path="/suppliers/:id" element={<SupplierDetail />} />
