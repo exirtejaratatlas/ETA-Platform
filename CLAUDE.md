@@ -242,36 +242,96 @@ Implemented:
 - RFQ Workflow Guide — deterministic business-rule evaluation against ETA-ENT-RFQ-004.
   NOT an AI feature: no model call, no score, no ranking, no recommendation.
 
-Milestone 2026-08-13 (see docs/delivery/SESSION-HANDOFF-MVP-PRODUCT-RFQ.md):
-- Decisions respected: CR-001, D1-D6; IMPLEMENTATION-GATE; CODING-RULES.
-- AI automation NOT implemented — still forbidden without a Change Request (D4, D6).
-- Product/RFQ Supabase migration authored but NOT applied — database work remains gated.
-- Open Decisions Required raised: Product status domain conflict (ETA-ENT-PRODUCT-001 vs
-  -005), RFQ status domain conflict (ETA-ENT-RFQ-001 vs -005), undefined enum domains
-  (criticality, priority, technical_risk_level), Supabase provisioning, AI assistant scope,
-  and ETA-Platform missing from the Claude Project's synced GitHub sources.
-- Next step: close those decisions in ETA-Blueprint before opening Phase 6.1.
+---
 
-Milestone 2026-08-13b — MVP workflow chain wired end to end:
-- Dashboard now operational, not decorative: KPI tiles are Open RFQs / budgeted value of
-  open RFQs / open POs / active suppliers, and the fabricated "AI Task Activity" panel is
-  replaced by "RFQ Requiring Attention" (RFQs with open blocker rules or a deadline inside
-  14 days, ranked by deterministic ETA-ENT-RFQ-004 evaluation — not AI).
-- Chain Customer Inquiry -> RFQ -> Award -> Purchase Order is now navigable in the UI.
-  PurchaseOrder gained `rfq_id` (ETA-ENT-RFQ-005 stage 12: awarded quotations generate POs);
-  Inquiries link to their RFQ via `internal_reference`.
-- Supplier profile gained "Products Supplied" and "RFQ Participation". Facts and links only —
-  no supplier scoring, ranking or performance rating (still out of scope).
-- Data-honesty correction (closes PHASE6-PLATFORM-EXECUTION-STRATEGY.md §2.4, answers §6 Q16):
-  `mockAiModels` and `mockAiTasks` are now empty. They previously advertised live
-  anthropic/openai/google integrations and completed supplier-scoring / price-analysis /
-  risk-assessment runs — none existed. `/ai-platform` is now a future-vision capability shell
-  stating plainly that nothing is implemented and that AI needs a Change Request (D4).
-- Decisions respected: D4, D6, IMPLEMENTATION-GATE, CODING-RULES. No architecture change, no
-  new entity, no new component, no new dependency, no AI implementation, migration still not applied.
-- Validation: typecheck clean, oxlint clean (3 pre-existing warnings only), build succeeds,
-  19 routes + 4 RTL sweeps pass headless Chromium with zero console/page errors and 0px overflow.
+# Execution Log
 
+Single source of execution status. One entry per accepted task. Failed or unverified
+work is never recorded here.
+
+## EXEC-001 — Product Management module
+Completed: Product list + detail on Approved ETA-ENT-PRODUCT-001/002/004/005.
+Files: `src/pages/products/ProductList.tsx`, `src/pages/products/ProductDetail.tsx`,
+`src/lib/supabase.ts`, `src/lib/mockData.ts`, `src/lib/data.ts`, `src/App.tsx`,
+`src/components/layout/Sidebar.tsx`, `src/components/layout/MobileNav.tsx`.
+Validation: typecheck PASS, build PASS, lint PASS, browser sweep PASS (0 console errors).
+Known issues: implements an attribute subset of ETA-ENT-PRODUCT-002; inventory, warehouse,
+logistics, quality and AI-metadata groups deliberately not modelled.
+Next step: none — accepted.
+
+## EXEC-002 — RFQ Workflow module
+Completed: RFQ list + detail, 14-stage lifecycle tracker, side-by-side quotation comparison,
+and a deterministic Workflow Guide evaluating 19 rules from Approved ETA-ENT-RFQ-004.
+Files: `src/pages/rfq/RfqList.tsx`, `src/pages/rfq/RfqDetail.tsx`,
+`src/components/rfq/RfqWorkflowGuide.tsx`, `src/lib/rfqLifecycle.ts`,
+`supabase/migrations/20260813193000_create_product_and_rfq_schema.sql`.
+Validation: typecheck PASS, build PASS, lint PASS, browser sweep PASS, RTL 0px overflow.
+Known issues: no evaluation score, supplier ranking or award recommendation — no approved
+methodology exists. Migration authored but NOT applied.
+Next step: none — accepted.
+
+## EXEC-003 — Dashboard operational integration (Agent 1)
+Completed: KPI tiles replaced with Open RFQs / budgeted value of open RFQs / open POs /
+active suppliers. Fabricated "AI Task Activity" panel removed and replaced by
+"RFQ Requiring Attention" — open RFQs carrying a failed blocker rule or a supplier deadline
+inside 14 days, ordered by deterministic ETA-ENT-RFQ-004 evaluation. Not an AI feature.
+Files: `src/pages/Dashboard.tsx`.
+Validation: typecheck PASS, build PASS, lint PASS, route + RTL sweep PASS.
+Known issues: two pre-existing RTL violations in the Sales Pipeline card were corrected in
+the same pass.
+Next step: none — accepted.
+
+## EXEC-004 — CRM Inquiry to RFQ workflow (Agent 2)
+Completed: inquiry cards link through to their RFQ via `internal_reference`; a
+"Converted to RFQ" tile reports conversion count. Chain Customer Inquiry -> RFQ -> Award ->
+Purchase Order is now navigable. `PurchaseOrder` gained `rfq_id` per ETA-ENT-RFQ-005 stage 12.
+Files: `src/pages/crm/Inquiries.tsx`, `src/lib/data.ts`, `src/lib/supabase.ts`,
+`src/lib/mockData.ts`.
+Validation: typecheck PASS, build PASS, lint PASS, route + RTL sweep PASS.
+Known issues: `customer_inquiries` still has no backend table — UI and mock data only.
+Next step: none — accepted.
+
+## EXEC-005 — Supplier commercial footprint (Agent 3)
+Completed: supplier profile gained "Products Supplied" (primary vs alternate source) and
+"RFQ Participation" (invited / responded / awarded). Facts and links only.
+Files: `src/pages/suppliers/SupplierDetail.tsx`, `src/lib/data.ts`.
+Validation: typecheck PASS, build PASS, lint PASS, route + RTL sweep PASS.
+Known issues: no supplier scoring, ranking or performance rating — remains out of scope.
+Next step: none — accepted.
+
+## EXEC-006 — AI Platform governance correction (Agent 4)
+Completed: `mockAiModels` and `mockAiTasks` emptied. They previously advertised live
+anthropic/openai/google integrations and completed supplier-scoring, price-analysis and
+risk-assessment runs; none existed. `/ai-platform` rebuilt as a future-vision capability
+shell per D4, stating plainly that nothing is implemented and that AI capability requires an
+approved Change Request. Off-palette provider colours removed.
+Files: `src/pages/AiPlatform.tsx`, `src/lib/mockData.ts`.
+Validation: typecheck PASS, build PASS, lint PASS, route + RTL sweep PASS.
+Known issues: closes the defect recorded in PHASE6-PLATFORM-EXECUTION-STRATEGY.md 2.4 and
+answers its 6 Q16 in the affirmative.
+Next step: none — accepted.
+
+## Standing constraints observed across EXEC-001..006
+- No architecture change, no new entity, no new component, no new dependency.
+- No AI implementation. AI automation remains forbidden without a Change Request (D4, D6).
+- IMPLEMENTATION-GATE.md, CODING-RULES.md and sprint documents were NOT modified.
+- Supabase migration authored, NOT applied. No `.env` present; mock fallback active.
+- All UI built RTL-ready against Approved Colors.md / Typography.md tokens.
+
+## Open Decisions Required (Founder)
+1. AI assistant scope — Change Request needed before any AI implementation.
+2. Product status domain conflict: ETA-ENT-PRODUCT-001 (7 states) vs -005 (11 stages).
+3. RFQ status domain conflict: ETA-ENT-RFQ-001 (11 statuses) vs -005 (14 stages).
+4. Undefined enum domains: `criticality`, `priority`, `technical_risk_level`.
+5. Supabase provisioning — environment, access control, secrets handling.
+6. Component-library sign-off against Components.md, and whether the UX Architecture Phase
+   prerequisite still applies to already-built product screens.
+
+## Next execution step
+Wire Purchase Orders to display the originating RFQ and awarded supplier. This is the last
+unwired node in the Inquiry -> RFQ -> Award -> PO chain; `rfq_id` already exists on the entity.
+
+---
 
 Next Priority:
 
