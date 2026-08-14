@@ -47,9 +47,10 @@ function YesNo({ value }: { value: boolean }) {
   return <span className={value ? "text-surface-900" : "text-surface-400"}>{value ? "Yes" : "No"}</span>;
 }
 
-const responseTone: Record<RfqSupplierResponse["response_status"], "success" | "warning" | "error" | "neutral" | "copper"> = {
+// Copper is accent-only (Colors.md; CR-004 V3) — not used here to represent response status.
+const responseTone: Record<RfqSupplierResponse["response_status"], "success" | "warning" | "error" | "neutral"> = {
   invited: "neutral",
-  responding: "copper",
+  responding: "warning",
   quoted: "success",
   declined: "error",
   no_response: "warning",
@@ -131,7 +132,8 @@ export default function RfqDetail() {
         actions={
           <div className="flex items-center gap-2">
             <Badge tone="neutral">{rfq.rfq_type}</Badge>
-            <Badge tone={rfq.rfq_status === "Cancelled" ? "error" : rfq.rfq_status === "Awarded" ? "success" : "copper"} dot>
+            {/* Copper is accent-only (Colors.md; CR-004 V3) — "warning" represents in-progress status here. */}
+            <Badge tone={rfq.rfq_status === "Cancelled" ? "error" : rfq.rfq_status === "Awarded" ? "success" : "warning"} dot>
               {rfq.rfq_status}
             </Badge>
           </div>
@@ -163,14 +165,16 @@ export default function RfqDetail() {
             const active = i === stageIndex;
             return (
               <li key={stage.stage} title={stage.validates}>
+                {/* Copper is accent-only (Colors.md; CR-004 V3) — info/success represent
+                    current/completed progress here instead. */}
                 <div
                   className={`h-1 rounded-full mb-1.5 ${
-                    active ? "bg-copper-600" : done ? "bg-copper-300" : "bg-surface-200"
+                    active ? "bg-info" : done ? "bg-success" : "bg-surface-200"
                   }`}
                 />
                 <p
                   className={`text-[11px] font-medium leading-tight ${
-                    active ? "text-copper-700" : done ? "text-surface-700" : "text-surface-400"
+                    active ? "text-info-dark" : done ? "text-surface-700" : "text-surface-400"
                   }`}
                 >
                   {stage.stage}. {stage.name}

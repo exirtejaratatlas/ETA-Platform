@@ -382,25 +382,27 @@ export type Product = {
 /**
  * Persisted RFQ status field.
  *
- * OPEN DECISION REQUIRED — ETA-ENT-RFQ-001 §"RFQ Status" lists these 11 values;
- * ETA-ENT-RFQ-005 §"Lifecycle Overview" walks 14 stages and names statuses the
- * entity document does not carry (Idea, Compliance Review, Technical Evaluation,
- * Commercial Evaluation, PO Created, Archived). This type follows the ENTITY
- * document because that is where the field's domain is declared; the lifecycle
- * document drives the stage tracker in `rfqLifecycle.ts`. The two need
- * reconciling in ETA-Blueprint.
+ * ETA-ENT-RFQ-005 (RFQ Lifecycle) is the sole canonical authority (CR-003 V1);
+ * ETA-ENT-RFQ-001 no longer declares an independent domain. `Quotation Received`
+ * and `Evaluation` are retired — both map to `Technical Evaluation` under the
+ * CR-004 V1 migration mapping. Ratified under CR-004 (V1),
+ * `ETA-Blueprint/13-DECISIONS/CR-004-Platform-Vocabulary-Migration-PROPOSAL.md`.
  */
 export type RfqStatus =
+  | "Idea"
   | "Draft"
   | "Engineering Review"
   | "Procurement Review"
+  | "Compliance Review"
   | "Approved"
   | "Sent"
   | "Supplier Responding"
-  | "Quotation Received"
-  | "Evaluation"
+  | "Technical Evaluation"
+  | "Commercial Evaluation"
   | "Awarded"
+  | "PO Created"
   | "Closed"
+  | "Archived"
   | "Cancelled";
 
 /** ETA-ENT-RFQ-001 §"RFQ Types". */

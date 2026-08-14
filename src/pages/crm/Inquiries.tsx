@@ -27,30 +27,36 @@ const stages: { key: InquiryStatus; label: string }[] = [
   { key: "lost", label: "Lost" },
 ];
 
-const stageTones: Record<InquiryStatus, "neutral" | "info" | "warning" | "copper" | "success" | "error"> = {
+// Copper is accent-only (Colors.md; CR-004 V3) — not used here to represent stage.
+const stageTones: Record<InquiryStatus, "neutral" | "info" | "warning" | "success" | "error"> = {
   new: "neutral",
   technical_review: "info",
   supplier_search: "warning",
-  quotation_preparation: "copper",
+  quotation_preparation: "warning",
   customer_offer_sent: "info",
-  negotiation: "copper",
+  negotiation: "warning",
   won: "success",
   lost: "error",
 };
 
 // Same tone map as src/pages/rfq/RfqList.tsx statusTone — reused so an RFQ chip
 // reads the same way here as it does on the RFQ Workflow board.
-const rfqStatusTone: Record<RfqStatus, "success" | "warning" | "error" | "neutral" | "info" | "copper"> = {
+// Copper is accent-only (Colors.md; CR-004 V3) — not used here to represent status.
+const rfqStatusTone: Record<RfqStatus, "success" | "warning" | "error" | "neutral" | "info"> = {
+  Idea: "neutral",
   Draft: "neutral",
   "Engineering Review": "warning",
   "Procurement Review": "warning",
+  "Compliance Review": "warning",
   Approved: "info",
   Sent: "info",
-  "Supplier Responding": "copper",
-  "Quotation Received": "copper",
-  Evaluation: "copper",
+  "Supplier Responding": "warning",
+  "Technical Evaluation": "warning",
+  "Commercial Evaluation": "warning",
   Awarded: "success",
+  "PO Created": "success",
   Closed: "neutral",
+  Archived: "neutral",
   Cancelled: "error",
 };
 

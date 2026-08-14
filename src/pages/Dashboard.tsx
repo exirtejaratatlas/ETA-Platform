@@ -13,15 +13,19 @@ import { Spinner } from "../components/ui/Spinner";
 import { EmptyState } from "../components/ui/EmptyState";
 import { formatCompactCurrency, formatCurrency } from "../lib/format";
 
+// Open = not yet Awarded/Closed/Archived/Cancelled. Vocabulary per ETA-ENT-RFQ-005,
+// ratified under CR-004 (V1) — same "before Awarded" boundary as before this migration.
 const OPEN_RFQ_STATUSES = [
+  "Idea",
   "Draft",
   "Engineering Review",
   "Procurement Review",
+  "Compliance Review",
   "Approved",
   "Sent",
   "Supplier Responding",
-  "Quotation Received",
-  "Evaluation",
+  "Technical Evaluation",
+  "Commercial Evaluation",
 ];
 
 type AttentionRfq = {

@@ -31,17 +31,22 @@ import { formatDate } from "../../lib/format";
 
 // Status tone map copied from src/pages/rfq/RfqList.tsx to keep RFQ status
 // colours consistent across the app.
-const statusTone: Record<RfqStatus, "success" | "warning" | "error" | "neutral" | "info" | "copper"> = {
+// Copper is accent-only (Colors.md; CR-004 V3) — not used here to represent status.
+const statusTone: Record<RfqStatus, "success" | "warning" | "error" | "neutral" | "info"> = {
+  Idea: "neutral",
   Draft: "neutral",
   "Engineering Review": "warning",
   "Procurement Review": "warning",
+  "Compliance Review": "warning",
   Approved: "info",
   Sent: "info",
-  "Supplier Responding": "copper",
-  "Quotation Received": "copper",
-  Evaluation: "copper",
+  "Supplier Responding": "warning",
+  "Technical Evaluation": "warning",
+  "Commercial Evaluation": "warning",
   Awarded: "success",
+  "PO Created": "success",
   Closed: "neutral",
+  Archived: "neutral",
   Cancelled: "error",
 };
 
@@ -67,9 +72,10 @@ const riskTone: Record<string, "success" | "warning" | "error"> = {
   high: "error",
 };
 
-const eventTone: Record<SupplierRelationshipEvent["type"], "success" | "warning" | "error" | "neutral" | "info" | "copper"> = {
+// Copper is accent-only (Colors.md; CR-004 V3) — not used here to represent event type.
+const eventTone: Record<SupplierRelationshipEvent["type"], "success" | "warning" | "error" | "neutral" | "info"> = {
   onboarded: "info",
-  order: "copper",
+  order: "success",
   review: "warning",
   certification: "success",
   issue: "error",
@@ -78,7 +84,7 @@ const eventTone: Record<SupplierRelationshipEvent["type"], "success" | "warning"
 
 const eventIconColor: Record<SupplierRelationshipEvent["type"], string> = {
   onboarded: "text-info",
-  order: "text-copper-500",
+  order: "text-success",
   review: "text-warning",
   certification: "text-success",
   issue: "text-error",

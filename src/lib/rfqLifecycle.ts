@@ -21,10 +21,9 @@ export type LifecycleStage = {
   name: string;
   owner: string;
   /**
-   * The `rfq_status` value ETA-ENT-RFQ-005 prints for this stage, when that value
-   * also exists in ETA-ENT-RFQ-001's declared status domain. `null` where the
-   * lifecycle document names a stage the entity document has no status for —
-   * see the OPEN DECISION note on `RfqStatus` in supabase.ts.
+   * The `rfq_status` value ETA-ENT-RFQ-005 prints for this stage. ETA-ENT-RFQ-005
+   * is the sole lifecycle authority (CR-003 V1); every stage now has a real status
+   * value, since `RfqStatus` (supabase.ts) carries the full canonical set (CR-004 V1).
    */
   status: RfqStatus | null;
   /** Verbatim summary of what the stage validates, per ETA-ENT-RFQ-005. */
@@ -33,39 +32,34 @@ export type LifecycleStage = {
 
 /** ETA-ENT-RFQ-005 §"Lifecycle Overview", Stages 1–14. */
 export const RFQ_LIFECYCLE: LifecycleStage[] = [
-  { stage: 1, name: "Idea", owner: "Procurement", status: null, validates: "Sourcing requirement originates from customer request, opportunity, project, maintenance, inventory replenishment." },
+  { stage: 1, name: "Idea", owner: "Procurement", status: "Idea", validates: "Sourcing requirement originates from customer request, opportunity, project, maintenance, inventory replenishment." },
   { stage: 2, name: "Draft", owner: "Procurement", status: "Draft", validates: "Customer, product lines, quantities, scope." },
   { stage: 3, name: "Engineering Review", owner: "Engineering", status: "Engineering Review", validates: "Technical specifications, drawings, datasheets, standards, material requirements." },
   { stage: 4, name: "Procurement Review", owner: "Procurement", status: "Procurement Review", validates: "Supplier list, manufacturer, procurement strategy, budget, lead time." },
-  { stage: 5, name: "Compliance Review", owner: "Compliance", status: null, validates: "Export control, sanctions, certifications, country restrictions." },
+  { stage: 5, name: "Compliance Review", owner: "Compliance", status: "Compliance Review", validates: "Export control, sanctions, certifications, country restrictions." },
   { stage: 6, name: "Approved", owner: "Engineering + Procurement + Compliance", status: "Approved", validates: "Formal approval. High-value RFQs may also require Executive approval." },
   { stage: 7, name: "Supplier Invitation", owner: "Procurement", status: "Sent", validates: "Approved suppliers receive invitations via email, supplier portal, API or EDI." },
   { stage: 8, name: "Supplier Responses", owner: "Suppliers", status: "Supplier Responding", validates: "Commercial proposal, technical proposal, attachments, delivery schedule." },
-  { stage: 9, name: "Technical Evaluation", owner: "Engineering", status: null, validates: "Compliance, technical match, deviations, alternatives." },
-  { stage: 10, name: "Commercial Evaluation", owner: "Procurement", status: null, validates: "Price, delivery, payment terms, warranty, incoterms, supplier performance." },
+  { stage: 9, name: "Technical Evaluation", owner: "Engineering", status: "Technical Evaluation", validates: "Compliance, technical match, deviations, alternatives." },
+  { stage: 10, name: "Commercial Evaluation", owner: "Procurement", status: "Commercial Evaluation", validates: "Price, delivery, payment terms, warranty, incoterms, supplier performance." },
   { stage: 11, name: "Award Decision", owner: "Procurement", status: "Awarded", validates: "Single award, split award, rejected or cancelled." },
-  { stage: 12, name: "Purchase Order Creation", owner: "Procurement", status: null, validates: "Awarded quotations generate purchase orders, contract references, supplier commitments." },
+  { stage: 12, name: "Purchase Order Creation", owner: "Procurement", status: "PO Created", validates: "Awarded quotations generate purchase orders, contract references, supplier commitments." },
   { stage: 13, name: "Closed", owner: "Procurement", status: "Closed", validates: "RFQ completed. No further quotations accepted." },
-  { stage: 14, name: "Archived", owner: "Procurement", status: null, validates: "Retained for audit, analytics and procurement benchmarking." },
+  { stage: 14, name: "Archived", owner: "Procurement", status: "Archived", validates: "Retained for audit, analytics and procurement benchmarking." },
 ];
 
 /**
  * Index of the stage an RFQ is currently sitting at, derived from its persisted
- * `rfq_status`. Statuses the lifecycle document has no stage for (`Quotation
- * Received`, `Evaluation`, `Cancelled`) are mapped to the nearest stage the two
- * documents agree on, and flagged below.
+ * `rfq_status`. Every status now matches a stage directly (CR-004 V1). `Cancelled`
+ * is the sole exception — BR-041 makes it a terminal, non-sequential state with no
+ * stage of its own, shown alongside Closed.
  */
 export function currentStageIndex(rfq: Rfq): number {
   const direct = RFQ_LIFECYCLE.findIndex((s) => s.status === rfq.rfq_status);
   if (direct !== -1) return direct;
-  // Entity-doc statuses with no lifecycle-doc stage — see OPEN DECISION on RfqStatus.
   switch (rfq.rfq_status) {
-    case "Quotation Received":
-      return 7; // between Supplier Responses and Technical Evaluation
-    case "Evaluation":
-      return 8; // Technical Evaluation
     case "Cancelled":
-      return 12; // terminal, shown alongside Closed
+      return 12; // terminal (BR-041), shown alongside Closed
     default:
       return 0;
   }

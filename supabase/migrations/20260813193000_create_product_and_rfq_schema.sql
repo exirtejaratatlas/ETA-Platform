@@ -36,7 +36,10 @@ Deliberately NOT included:
 - BR-028 (Product) — reorder point vs. maximum stock is an Inventory-module rule; not modelled here.
 - BR-037 (Product) / BR-039 (RFQ) — soft delete only: `deleted_flag`, no physical delete path.
 - BR-001 / BR-002 (RFQ) — rfq_number is UNIQUE.
-- BR-004 / BR-005 (RFQ) — rfq_type and rfq_status NOT NULL with CHECKs over ETA-ENT-RFQ-001.
+- BR-004 (RFQ) — rfq_type NOT NULL with a CHECK over ETA-ENT-RFQ-001 (RFQ Types, unaffected
+  by CR-003/CR-004). BR-005 — rfq_status NOT NULL with a CHECK over ETA-ENT-RFQ-005 (RFQ
+  Lifecycle), the sole lifecycle authority as of CR-003 V1; ETA-ENT-RFQ-001 no longer
+  declares an independent rfq_status domain.
 - BR-010 / BR-011 (RFQ) — quantity and uom on rfq_lines are enforced at approval time in
   application logic (`src/lib/rfqLifecycle.ts`), NOT as NOT NULL columns, because a Draft RFQ is
   explicitly allowed to be incomplete (ETA-ENT-RFQ-005 stage 2).
@@ -160,8 +163,11 @@ CREATE TABLE IF NOT EXISTS rfqs (
     'Customer RFQ','Internal RFQ','Strategic RFQ','Budgetary RFQ','Competitive RFQ',
     'Emergency RFQ','Repeat RFQ','Project RFQ')),    -- BR-004
   rfq_status text NOT NULL DEFAULT 'Draft' CHECK (rfq_status IN (
-    'Draft','Engineering Review','Procurement Review','Approved','Sent','Supplier Responding',
-    'Quotation Received','Evaluation','Awarded','Closed','Cancelled')),  -- BR-005
+    'Idea','Draft','Engineering Review','Procurement Review','Compliance Review','Approved',
+    'Sent','Supplier Responding','Technical Evaluation','Commercial Evaluation','Awarded',
+    'PO Created','Closed','Archived','Cancelled')),  -- BR-005, canonical vocabulary per
+    -- ETA-ENT-RFQ-005 (CR-003 V1 / CR-004 V1). Quotation Received and Evaluation retired;
+    -- both mapped to Technical Evaluation under the CR-004 V1 migration mapping.
   priority text,
   revision int NOT NULL DEFAULT 0,                   -- BR-025
   active boolean NOT NULL DEFAULT true,

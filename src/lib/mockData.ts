@@ -861,7 +861,7 @@ export const mockRfqs: Rfq[] = [
   },
   {
     id: "rfq-000128", rfq_number: "RFQ-2026-000128", customer_rfq_number: "CCG-2026-0071", internal_reference: "INQ-2026-0009",
-    rfq_type: "Project RFQ", rfq_status: "Evaluation", priority: "High", revision: 1, active: true,
+    rfq_type: "Project RFQ", rfq_status: "Technical Evaluation", priority: "High", revision: 1, active: true,
     company_id: null, customer_name: "Compass Consulting Group", end_user: "Bandar Refinery Unit 2", epc_contractor: "Meridian EPC Group",
     customer_contact_name: "Leila Sadeghi", customer_email: "l.sadeghi@compassconsult.com",
     rfq_title: "Shell & tube heat exchanger — TEMA R", description: "Custom-fabricated exchanger for the crude preheat train.",

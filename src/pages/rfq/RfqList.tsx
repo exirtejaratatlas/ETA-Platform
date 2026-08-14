@@ -16,42 +16,56 @@ import { EmptyState } from "../../components/ui/EmptyState";
 // (ETA-Blueprint 04-DATA/Entities/RFQ: ETA-ENT-RFQ-001/002/004/005).
 
 const STATUSES: RfqStatus[] = [
+  "Idea",
   "Draft",
   "Engineering Review",
   "Procurement Review",
+  "Compliance Review",
   "Approved",
   "Sent",
   "Supplier Responding",
-  "Quotation Received",
-  "Evaluation",
+  "Technical Evaluation",
+  "Commercial Evaluation",
   "Awarded",
+  "PO Created",
   "Closed",
+  "Archived",
   "Cancelled",
 ];
 
-const statusTone: Record<RfqStatus, "success" | "warning" | "error" | "neutral" | "info" | "copper"> = {
+// Same tone map as src/pages/crm/Inquiries.tsx rfqStatusTone — kept identical so an
+// RFQ chip reads the same way there as it does on this board.
+// Copper is accent-only (Colors.md; CR-004 V3) — not used here to represent status.
+const statusTone: Record<RfqStatus, "success" | "warning" | "error" | "neutral" | "info"> = {
+  Idea: "neutral",
   Draft: "neutral",
   "Engineering Review": "warning",
   "Procurement Review": "warning",
+  "Compliance Review": "warning",
   Approved: "info",
   Sent: "info",
-  "Supplier Responding": "copper",
-  "Quotation Received": "copper",
-  Evaluation: "copper",
+  "Supplier Responding": "warning",
+  "Technical Evaluation": "warning",
+  "Commercial Evaluation": "warning",
   Awarded: "success",
+  "PO Created": "success",
   Closed: "neutral",
+  Archived: "neutral",
   Cancelled: "error",
 };
 
+// Open = not yet Awarded/Closed/Archived/Cancelled — same boundary as before this migration.
 const OPEN_STATUSES: RfqStatus[] = [
+  "Idea",
   "Draft",
   "Engineering Review",
   "Procurement Review",
+  "Compliance Review",
   "Approved",
   "Sent",
   "Supplier Responding",
-  "Quotation Received",
-  "Evaluation",
+  "Technical Evaluation",
+  "Commercial Evaluation",
 ];
 
 function daysUntil(iso: string | null): number | null {
@@ -95,8 +109,12 @@ export default function RfqList() {
 
   const stats = useMemo(() => {
     const open = rfqs.filter((r) => OPEN_STATUSES.includes(r.rfq_status));
+    // "Quotation Received" is retired (CR-004 V1) with no direct replacement at the
+    // rfq_status level — that signal now lives in supplier-response counts, not here.
+    // Not widened to include "Technical Evaluation": that stage means suppliers have
+    // already responded and the team is evaluating, not that we're still awaiting them.
     const awaitingSuppliers = rfqs.filter((r) =>
-      ["Sent", "Supplier Responding", "Quotation Received"].includes(r.rfq_status)
+      ["Sent", "Supplier Responding"].includes(r.rfq_status)
     ).length;
     const awarded = rfqs.filter((r) => r.rfq_status === "Awarded").length;
     const dueSoon = open.filter((r) => {
