@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { ShoppingBag, Plus, Search } from "lucide-react";
-import type { PurchaseOrder, PoItem } from "../../lib/supabase";
-import { getPurchaseOrders, getSuppliers, getPoItems } from "../../lib/data";
+import type { PurchaseOrder, PoItem, Rfq } from "../../lib/supabase";
+import { getPurchaseOrders, getSuppliers, getPoItems, getRfqs } from "../../lib/data";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { Card } from "../../components/ui/Card";
 import { Badge } from "../../components/ui/Badge";
@@ -21,25 +22,40 @@ const statusTones: Record<string, "neutral" | "info" | "warning" | "copper" | "s
   cancelled: "error",
 };
 
+type EnrichedPO = PurchaseOrder & {
+  supplier_name?: string;
+  rfq?: Pick<Rfq, "id" | "rfq_number" | "rfq_title">;
+  awarded_supplier_name?: string;
+};
+
 export default function PurchaseOrders() {
   const [loading, setLoading] = useState(true);
-  const [orders, setOrders] = useState<(PurchaseOrder & { supplier_name?: string })[]>([]);
+  const [orders, setOrders] = useState<EnrichedPO[]>([]);
   const [search, setSearch] = useState("");
-  const [selectedPO, setSelectedPO] = useState<{ po: PurchaseOrder & { supplier_name?: string }; items: PoItem[] } | null>(null);
+  const [selectedPO, setSelectedPO] = useState<{ po: EnrichedPO; items: PoItem[] } | null>(null);
   const [itemsLoading, setItemsLoading] = useState(false);
 
   useEffect(() => {
     async function load() {
-      const [poData, suppliers] = await Promise.all([getPurchaseOrders(), getSuppliers()]);
+      const [poData, suppliers, rfqs] = await Promise.all([getPurchaseOrders(), getSuppliers(), getRfqs()]);
       const supplierMap = new Map(suppliers.map((s) => [s.id, s.name] as [string, string]));
-      const enriched = poData.map((po) => ({ ...po, supplier_name: po.supplier_id ? supplierMap.get(po.supplier_id) : undefined }));
+      const rfqMap = new Map(rfqs.map((r) => [r.id, r] as [string, Rfq]));
+      const enriched = poData.map((po) => {
+        const rfq = po.rfq_id ? rfqMap.get(po.rfq_id) : undefined;
+        return {
+          ...po,
+          supplier_name: po.supplier_id ? supplierMap.get(po.supplier_id) : undefined,
+          rfq,
+          awarded_supplier_name: rfq?.winning_supplier_id ? supplierMap.get(rfq.winning_supplier_id) : undefined,
+        };
+      });
       setOrders(enriched);
       setLoading(false);
     }
     load();
   }, []);
 
-  async function openPODetails(po: PurchaseOrder & { supplier_name?: string }) {
+  async function openPODetails(po: EnrichedPO) {
     setSelectedPO({ po, items: [] });
     setItemsLoading(true);
     const items = await getPoItems(po.id);
@@ -86,6 +102,22 @@ export default function PurchaseOrders() {
               key: "supplier_name",
               label: "Supplier",
               render: (row) => <span className="text-surface-600">{row.supplier_name ?? "—"}</span>,
+            },
+            {
+              key: "rfq",
+              label: "RFQ",
+              render: (row) =>
+                row.rfq ? (
+                  <Link
+                    to={`/rfq/${row.rfq.id}`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="font-mono text-xs text-copper-600 hover:text-copper-700"
+                  >
+                    {row.rfq.rfq_number}
+                  </Link>
+                ) : (
+                  <span className="text-xs text-surface-400">Direct procurement</span>
+                ),
             },
             {
               key: "total",
@@ -140,6 +172,25 @@ export default function PurchaseOrders() {
               <div>
                 <p className="text-xs text-surface-400 uppercase tracking-wide">Status</p>
                 <div className="mt-0.5"><Badge tone={statusTones[selectedPO.po.status]} dot>{selectedPO.po.status}</Badge></div>
+              </div>
+              <div>
+                <p className="text-xs text-surface-400 uppercase tracking-wide">Originating RFQ</p>
+                {selectedPO.po.rfq ? (
+                  <Link
+                    to={`/rfq/${selectedPO.po.rfq.id}`}
+                    className="text-sm font-medium text-copper-600 hover:text-copper-700 mt-0.5 block"
+                  >
+                    {selectedPO.po.rfq.rfq_number}
+                  </Link>
+                ) : (
+                  <p className="text-sm font-medium text-surface-900 mt-0.5">Direct procurement</p>
+                )}
+              </div>
+              <div>
+                <p className="text-xs text-surface-400 uppercase tracking-wide">Awarded Supplier</p>
+                <p className="text-sm font-medium text-surface-900 mt-0.5">
+                  {selectedPO.po.rfq ? selectedPO.po.awarded_supplier_name ?? "—" : "—"}
+                </p>
               </div>
             </div>
 
